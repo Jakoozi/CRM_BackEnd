@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Xend.CRM.WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:Xend.CRM.WebApi.Extensions.DIRegistrationExtension">
+            <summary>
+            IServiceCollection class extensions for use in Startup.cs to register classes for Dependency injection
+            </summary>
+        </member>
+        <member name="T:Xend.CRM.WebApi.Extensions.ServiceCollectionExtension">
+            <summary>
+            IServiceCollection class extensions for use in the Startup.cs
+            </summary>
+        </member>
+    </members>
+</doc>

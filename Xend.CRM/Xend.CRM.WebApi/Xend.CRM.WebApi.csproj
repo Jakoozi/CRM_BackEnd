@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <UserSecretsId>0a3cbea6-f285-47ba-a4ca-c55e80431a1d</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\dell\source\repos\Xend.CRM\Xend.CRM\Xend.CRM.WebApi\Xend.CRM.WebApi.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.1.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.10" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Xend.CRM.Core\Xend.CRM.Core.csproj" />
+    <ProjectReference Include="..\Xend.CRM.DataAccessLayer\Xend.CRM.DataAccessLayer.csproj" />
+    <ProjectReference Include="..\Xend.CRM.ModelLayer\Xend.CRM.ModelLayer.csproj" />
+    <ProjectReference Include="..\Xend.CRM.ServiceLayer\Xend.CRM.ServiceLayer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\api-docs\" />
+  </ItemGroup>
+
+ <!-- <Target Name="SwaggerToFile" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Debug' ">
+    <Exec Command="dotnet swagger tofile output .\wwwroot\api-docs\swagger.json $(OutputPath)\$(AssemblyName).dll v1" />
+  </Target>-->
+
+</Project>
