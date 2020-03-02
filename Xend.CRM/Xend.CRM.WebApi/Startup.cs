@@ -63,40 +63,42 @@ namespace Xend.CRM.WebApi
             services.AddDbContext<XendDbContext>(options =>
             {
                 options.EnableSensitiveDataLogging();
-                options.UseLazyLoadingProxies().UseSqlServer(_Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("Xend.PresentationLayer"));
-
+                options.UseLazyLoadingProxies().UseSqlServer(_Configuration.GetValue<string>("ConnectionString:DefaultConnection"), b => b.MigrationsAssembly("Xend.CRM.WebApi"));
+                
                 options.ConfigureWarnings(c => c.Log(CoreEventId.DetachedLazyLoadingWarning));
 
             }
             );
 
+            string connectstring = _Configuration.GetValue<string>("ConnectionString:DefaultConnection");
+
 
 
             //Mass Transit Config
             services.AddScoped<DummyConsumer>();
-            services.AddMassTransit(c =>
-            {
-                c.AddConsumer<DummyConsumer>();
-            });
-            services.AddSingleton(provider => Bus.Factory.CreateUsingRabbitMq(
-                                     cfg =>
-                                     {
-                                         IRabbitMqHost host = cfg.Host("localhost", "/", h => { });
+            //services.AddMassTransit(c =>
+            //{
+            //    c.AddConsumer<DummyConsumer>();
+            //});
+            //services.AddSingleton(provider => Bus.Factory.CreateUsingRabbitMq(
+            //                         cfg =>
+            //                         {
+            //                             IRabbitMqHost host = cfg.Host("localhost", "/", h => { });
 
-                                         cfg.ReceiveEndpoint(host, "xend-boilerplate", e =>
-                                         {
-                                             e.PrefetchCount = 16;
-                                             e.UseMessageRetry(x => x.Interval(2, 100));
+            //                             cfg.ReceiveEndpoint(host, "xend-boilerplate", e =>
+            //                             {
+            //                                 e.PrefetchCount = 16;
+            //                                 e.UseMessageRetry(x => x.Interval(2, 100));
 
-                                             e.LoadFrom(provider);
-                                             EndpointConvention.Map<DummyConsumer>(e.InputAddress);
+            //                                 e.LoadFrom(provider);
+            //                                 EndpointConvention.Map<DummyConsumer>(e.InputAddress);
 
 
-                                         });
-                                     }));
+            //                             });
+            //                         }));
 
-            services.AddSingleton<IBus>(provider => provider.GetRequiredService<IBusControl>());
-            services.AddHostedService<BusService>();
+            //services.AddSingleton<IBus>(provider => provider.GetRequiredService<IBusControl>());
+            //services.AddHostedService<BusService>();
 
             services.AddCors(options =>
             {

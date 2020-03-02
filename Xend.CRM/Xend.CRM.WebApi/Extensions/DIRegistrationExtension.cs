@@ -7,6 +7,8 @@ using Xend.CRM.DataAccessLayer.Repository;
 using Xend.CRM.ModelLayer.Appsetting;
 using Xend.CRM.ModelLayer.DbContexts;
 using Xend.CRM.ServiceLayer.Bootstrapper;
+using Xend.CRM.ServiceLayer.EntityServices;
+using Xend.CRM.ServiceLayer.EntityServices.Interface;
 using Xend.CRM.ServiceLayer.Logger;
 using Xend.CRM.ServiceLayer.MessageBroker;
 
@@ -19,14 +21,20 @@ namespace Xend.CRM.WebApi.Extensions
     {
         private static IServiceCollection ConfigureBootstrappers(this IServiceCollection services)
         {
+            //This is were services for dependency injection will be added
             services.AddTransient<IStartManager, StartManager>();
             services.AddTransient<IStopManager, StopManager>();
             services.AddTransient<ILoggerManager, LoggerManager>();
-
             services.AddTransient<IMessageSender, MessageSender>();
-
-
             services.AddScoped<IUnitOfWork, UnitOfWork<XendDbContext>>();
+
+            //this are my  model services
+            services.AddTransient<IAuditRail, AuditRailServices>();
+            services.AddTransient<ICompany, CompanyServices>();
+            services.AddTransient<ICustomer, CustomerServices>();
+            services.AddTransient<ITeam, TeamServices>();
+            services.AddTransient<ITicket, TicketServices>();
+            services.AddTransient<IUser, UserServices>();
 
 
 
