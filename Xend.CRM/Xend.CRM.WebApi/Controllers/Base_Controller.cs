@@ -12,7 +12,7 @@ namespace Xend.CRM.WebApi.Controllers
     public abstract class BaseAPIController : Controller
     {
         [NonAction]
-        public OkObjectResult Ok(object value, string message = "", string code = null)
+        public OkObjectResult Ok(object value, string message = "", string code = "")
         {
             return base.Ok(new
             {

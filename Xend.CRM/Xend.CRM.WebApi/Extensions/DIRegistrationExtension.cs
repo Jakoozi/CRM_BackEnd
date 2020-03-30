@@ -30,7 +30,7 @@ namespace Xend.CRM.WebApi.Extensions
 
             //this are my  model services
             services.AddTransient<IAuditRail, AuditRailServices>();
-            services.AddTransient<ICompany, CompanyServices>();
+            services.AddScoped<ICompany, CompanyServices>();
             services.AddTransient<ICustomer, CustomerServices>();
             services.AddTransient<ITeam, TeamServices>();
             services.AddTransient<ITicket, TicketServices>();
@@ -49,3 +49,4 @@ namespace Xend.CRM.WebApi.Extensions
         }
     }
 }
+

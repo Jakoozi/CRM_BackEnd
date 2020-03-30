@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Xend.CRM.ModelLayer.ViewModels;
 
 namespace Xend.CRM.ModelLayer.Entities
 {
@@ -8,6 +9,5 @@ namespace Xend.CRM.ModelLayer.Entities
     {
         //public long Company_Id { get; set; }
         public string Company_Name { get; set; }
-
     }
 }
