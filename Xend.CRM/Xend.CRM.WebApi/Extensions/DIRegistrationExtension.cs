@@ -26,7 +26,7 @@ namespace Xend.CRM.WebApi.Extensions
             services.AddTransient<IStopManager, StopManager>();
             services.AddTransient<ILoggerManager, LoggerManager>();
             services.AddTransient<IMessageSender, MessageSender>();
-            services.AddScoped<IUnitOfWork, UnitOfWork<XendDbContext>>();
+            services.AddTransient<IUnitOfWork<XendDbContext>, UnitOfWork<XendDbContext>>();
 
             //this are my  model services
             services.AddTransient<IAuditRail, AuditRailServices>();
