@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -25,7 +26,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
         }
 
         //this service creates companies
-        public string CompanyCreationService(CompanyViewModel company)
+        public string CompanyCreationService  (CompanyViewModel company)
         {
             try
             {
@@ -49,8 +50,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                     };
                     UnitOfWork.GetRepository<Company>().Add(comp);
                     UnitOfWork.SaveChanges();
-
-                    return "Entity Created Successfully";
+					return "Entity Created Successfully";
+					
                 }
             }
             catch (Exception ex)
@@ -61,12 +62,13 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
         }
 
-        //this service updates a company by its id
-        public string UpdateCompanyService(CompanyViewModel company)
+		//this service updates a company by its id
+		public string UpdateCompanyService(CompanyViewModel company)
         {
+			CompanyServiceResponseModel companymodel = new CompanyServiceResponseModel();
             try
             {
-                Company comp = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+                Company comp = UnitOfWork.GetRepository<Company>().Single(p => p.Id == company.Id);
                 if (comp == null)
                 {
                     return "Entity Does Not Exist";
@@ -77,7 +79,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                     comp.Company_Name = company.Company_Name;
                     comp.UpdatedAt = DateTime.UtcNow;
                     comp.UpdatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp();
-                    UnitOfWork.SaveChanges();
+					UnitOfWork.GetRepository<Company>().Update(comp); ;
+					UnitOfWork.SaveChanges();
 
                     return "Entity Updated Successfully";
                 }
@@ -145,7 +148,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 CompanyViewModel companyViewModel = new CompanyViewModel
                 {
                     Company_Name = company.Company_Name,
-                    Company_Id = company.Id
+                    Id = company.Id
                 };
 
                 if (company != null)

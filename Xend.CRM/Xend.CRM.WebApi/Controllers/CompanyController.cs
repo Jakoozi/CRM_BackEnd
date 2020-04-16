@@ -32,18 +32,18 @@ namespace Xend.CRM.WebApi.Controllers
               
                     if (createResponseReciever == "Entity Already Exists")
                     {
-                        return BadRequest("Entity Already Exists", "001");
+                        return BadRequest(null, "Entity Already Exists", "001");
                     }
-                    else if (createResponseReciever == "Entity Created Successfully")
-                    {
-                        return Ok("Entity Created Successfully", "002");
+					else if (createResponseReciever == "Entity Created Successfully")
+					{
+                        return Ok(null, "Entity Created Successfully", "002");
                     }
                     else
                     {
-                        return BadRequest("Error Occured", "003");
+                        return BadRequest(null, "Error Occured", "003");
                     }
                 }
-                return BadRequest("Null Entity", "004");
+                return BadRequest(null, "Null Entity", "004");
 
             }
             catch (Exception ex)
@@ -64,18 +64,18 @@ namespace Xend.CRM.WebApi.Controllers
 
                     if (createResponseReciever == "Entity Does Not Exist")
                     {
-                        return BadRequest("Entity Does Not Exist", "001");
+                        return BadRequest(null ,"Entity Does Not Exist", "001");
                     }
                     else if (createResponseReciever == "Entity Updated Successfully")
                     {
-                        return Ok("Entity Updated Successfully", "002");
+                        return Ok(null, "Entity Updated Successfully", "002");
                     }
                     else
                     {
-                        return BadRequest("Error Occured", "003");
+                        return BadRequest(null, "Error Occured", "003");
                     }
                 }
-                return BadRequest("Null Entity", "004");
+                return BadRequest(null, "Null Entity", "004");
 
             }
             catch (Exception ex)

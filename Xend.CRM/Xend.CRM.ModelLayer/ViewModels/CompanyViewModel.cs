@@ -9,7 +9,7 @@ namespace Xend.CRM.ModelLayer.ViewModels
 {
     public class CompanyViewModel
     {
-        public Guid? Company_Id { get; set; }
+        public Guid? Id { get; set; }
         [Required]
         public string Company_Name { get; set; }
 
