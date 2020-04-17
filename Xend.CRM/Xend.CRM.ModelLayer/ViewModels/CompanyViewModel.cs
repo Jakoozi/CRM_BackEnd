@@ -7,7 +7,7 @@ using Xend.CRM.ModelLayer.Enums;
 
 namespace Xend.CRM.ModelLayer.ViewModels
 {
-    public class CompanyViewModel
+    public class CompanyViewModel 
     {
         public Guid? Id { get; set; }
         [Required]

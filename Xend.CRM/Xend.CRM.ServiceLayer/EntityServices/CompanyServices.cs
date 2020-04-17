@@ -14,31 +14,34 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
     public class CompanyServices : BaseService, ICompany
     {
         ILoggerManager _loggerManager { get; }
-        public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		CompanyServiceResponseModel companyModel;
+		public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
         {
             _loggerManager = loggerManager;
         }
 
         //this service creates companies
-        public string CompanyCreationService  (CompanyViewModel company)
+        public CompanyServiceResponseModel CompanyCreationService  (CompanyViewModel company)
         {
             try
             {
                 //unit of work is used to replace _context.
-                Company comp = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
-                if (comp != null)
+                Company createdCompany = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+                if (createdCompany != null)
                 {
-                    return "Entity Already Exists";
+					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Already Exists", code = "001" };
+					return companyModel;
                 }
                 else
                 {
-                    comp = new Company
+                    createdCompany = new Company
                     {
                         Company_Name = company.Company_Name,
                         Status = EntityStatus.Active,
@@ -48,9 +51,11 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                         UpdatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp()
                         
                     };
-                    UnitOfWork.GetRepository<Company>().Add(comp);
+                    UnitOfWork.GetRepository<Company>().Add(createdCompany);
                     UnitOfWork.SaveChanges();
-					return "Entity Created Successfully";
+
+					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Created Successfully", code = "002" };
+					return companyModel;
 					
                 }
             }
@@ -63,26 +68,28 @@ namespace Xend.CRM.ServiceLayer.EntityServices
         }
 
 		//this service updates a company by its id
-		public string UpdateCompanyService(CompanyViewModel company)
+		public CompanyServiceResponseModel UpdateCompanyService(CompanyViewModel company)
         {
-			CompanyServiceResponseModel companymodel = new CompanyServiceResponseModel();
+			
             try
             {
-                Company comp = UnitOfWork.GetRepository<Company>().Single(p => p.Id == company.Id);
-                if (comp == null)
+                Company updatedCompany = UnitOfWork.GetRepository<Company>().Single(p => p.Id == company.Id);
+                if (updatedCompany == null)
                 {
-                    return "Entity Does Not Exist";
-                }
+					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+					return companyModel;
+				}
                 else
                 {
-                    //here i will assign directly what i want to update to the model instead of creating a new instance
-                    comp.Company_Name = company.Company_Name;
-                    comp.UpdatedAt = DateTime.UtcNow;
-                    comp.UpdatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp();
-					UnitOfWork.GetRepository<Company>().Update(comp); ;
+					//here i will assign directly what i want to update to the model instead of creating a new instance
+					updatedCompany.Company_Name = company.Company_Name;
+					updatedCompany.UpdatedAt = DateTime.UtcNow;
+					updatedCompany.UpdatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp();
+					UnitOfWork.GetRepository<Company>().Update(updatedCompany); ;
 					UnitOfWork.SaveChanges();
 
-                    return "Entity Updated Successfully";
+					companyModel = new CompanyServiceResponseModel() { company = updatedCompany, Message = "Entity Updated Successfully", code = "002" };
+                    return companyModel;
                 }
             }
             catch (Exception ex)

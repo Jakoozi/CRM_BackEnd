@@ -5,6 +5,7 @@ using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 using Xend.CRM.ModelLayer.ResponseModel;
+using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 
 namespace Xend.CRM.WebApi.Controllers
 {
@@ -28,15 +29,15 @@ namespace Xend.CRM.WebApi.Controllers
                 if(ModelState.IsValid)
                 {
 
-                    string createResponseReciever = _icompany.CompanyCreationService(company);
+					CompanyServiceResponseModel createResponseReciever = _icompany.CompanyCreationService(company);
               
-                    if (createResponseReciever == "Entity Already Exists")
+                    if (createResponseReciever.code == "001")
                     {
-                        return BadRequest(null, "Entity Already Exists", "001");
+                        return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
-					else if (createResponseReciever == "Entity Created Successfully")
+					else if (createResponseReciever.Message == "002")
 					{
-                        return Ok(null, "Entity Created Successfully", "002");
+                        return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
                     else
                     {
@@ -60,15 +61,15 @@ namespace Xend.CRM.WebApi.Controllers
                 if (ModelState.IsValid)
                 {
 
-                    string createResponseReciever = _icompany.UpdateCompanyService(company);
+					CompanyServiceResponseModel createResponseReciever = _icompany.UpdateCompanyService(company);
 
-                    if (createResponseReciever == "Entity Does Not Exist")
+                    if (createResponseReciever.code == "001")
                     {
-                        return BadRequest(null ,"Entity Does Not Exist", "001");
+                        return BadRequest(createResponseReciever.company, createResponseReciever.Message,createResponseReciever.code);
                     }
-                    else if (createResponseReciever == "Entity Updated Successfully")
+                    else if (createResponseReciever.Message == "002")
                     {
-                        return Ok(null, "Entity Updated Successfully", "002");
+                        return Ok(createResponseReciever.company, createResponseReciever.Message, "002");
                     }
                     else
                     {
