@@ -35,7 +35,7 @@ namespace Xend.CRM.WebApi.Controllers
                     {
                         return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
-					else if (createResponseReciever.Message == "002")
+					else if (createResponseReciever.code == "002")
 					{
                         return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
@@ -67,9 +67,9 @@ namespace Xend.CRM.WebApi.Controllers
                     {
                         return BadRequest(createResponseReciever.company, createResponseReciever.Message,createResponseReciever.code);
                     }
-                    else if (createResponseReciever.Message == "002")
+                    else if (createResponseReciever.code == "002")
                     {
-                        return Ok(createResponseReciever.company, createResponseReciever.Message, "002");
+                        return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
                     else
                     {
@@ -93,22 +93,22 @@ namespace Xend.CRM.WebApi.Controllers
                 if (ModelState.IsValid)
                 {
 
-                    string createResponseReciever = _icompany.DeleteCompanyService(id);
+					CompanyServiceResponseModel createResponseReciever = _icompany.DeleteCompanyService(id);
 
-                    if (createResponseReciever == "Entity Does Not Exist")
+                    if (createResponseReciever.code == "001")
                     {
-                        return BadRequest("Entity Does Not Exist", "001");
+                        return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
-                    else if (createResponseReciever == "Entity Deleted Successfully")
+                    else if (createResponseReciever.code == "002")
                     {
-                        return Ok("Entity Deleted Successfully", "002");
-                    }
+                        return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
                     else
                     {
-                        return BadRequest("Error Occured", "003");
+                        return BadRequest(null,"Error Occured", "003");
                     }
                 }
-                return BadRequest("Null Entity", "004");
+                return BadRequest(null,"Null Entity", "004");
 
             }
             catch (Exception ex)
@@ -118,22 +118,23 @@ namespace Xend.CRM.WebApi.Controllers
         }
 
         [HttpGet("GetCompanyById/{id}")]
-        public IActionResult GetByCompanyId(Guid id)
+		//[HttpGet("{id}")]
+		public IActionResult GetCompanyById(Guid id)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
 
-                    CompanyViewModel createResponseReciever = _icompany.GetCompanyByIdService(id);
+					CompanyServiceResponseModel createResponseReciever = _icompany.GetCompanyByIdService(id);
 
-                    if (createResponseReciever == null)
+                    if (createResponseReciever.code == "001")
                     {
-                        return BadRequest("Entity Does Not Exist", "001");
+                        return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
-                    else if (createResponseReciever != null)
+                    else if (createResponseReciever.Message == "002")
                     {
-                        return Ok(createResponseReciever, "Entity Fetched Successfully", "002");
+                        return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
                     }
                     else
                     {
@@ -148,6 +149,7 @@ namespace Xend.CRM.WebApi.Controllers
                 return BadRequest(ex);
             }
         }
+		[HttpGet("GetAllCompaniesService")]
 
 
 

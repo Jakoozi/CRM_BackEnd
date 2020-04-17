@@ -101,22 +101,35 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
         //this service deletes companies from the CRM. It does not actually delete this services,
         //It only changes there status from Active to Inactive.
-        public string DeleteCompanyService(Guid id)
+        public CompanyServiceResponseModel DeleteCompanyService(Guid id)
         {
             try
             {
-                Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
+				
+				Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
                 if (company == null)
                 {
-                    return "Entity Does Not Exist";
+					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+					return companyModel;
                 }
                 else
                 {
-                    company.Status = EntityStatus.Active;
-                    //UnitOfWork.GetRepository<Company>().Update(company);
-                    UnitOfWork.SaveChanges();
+					if(company.Status == EntityStatus.Active)
+					{
+						company.Status = EntityStatus.InActive;
+						UnitOfWork.GetRepository<Company>().Update(company);
+						UnitOfWork.SaveChanges();
 
-                    return "Entity Deleted Successfully";
+						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Deleted Successfully", code = "002" };
+						return companyModel;
+					}
+					else
+					{
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						return companyModel;
+					}
+					
+					
                 }
             }
             catch (Exception ex)
@@ -145,24 +158,34 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
         //this service fetches companies by there id
         //I have an issue knowing what to return and the return type to use in this method
-        public CompanyViewModel GetCompanyByIdService(Guid id)
+        public CompanyServiceResponseModel GetCompanyByIdService(Guid id)
         {
             try
             {
                 Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
 
                 //since i cant send company directly, i get the company and pass the values i need into the companyViewModel which i then return
-                CompanyViewModel companyViewModel = new CompanyViewModel
-                {
-                    Company_Name = company.Company_Name,
-                    Id = company.Id
-                };
+                //CompanyViewModel companyViewModel = new CompanyViewModel
+                //{
+                //    Company_Name = company.Company_Name,
+                //    Id = company.Id
+                //};
 
                 if (company != null)
                 {
-                    return companyViewModel;
-                }
-                return null;
+					if(company.Status == EntityStatus.Active)
+					{
+						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Fetched Successfully", code = "002" };
+						return companyModel;
+					}
+					else
+					{
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						return companyModel;
+					}
+				}
+				companyModel = new CompanyServiceResponseModel() {company = null, Message = "Entity Does Not Exist", code = "001" };
+                return companyModel;
             }
             catch (Exception ex)
             {

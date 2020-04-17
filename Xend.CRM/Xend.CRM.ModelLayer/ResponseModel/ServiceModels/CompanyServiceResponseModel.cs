@@ -10,5 +10,6 @@ namespace Xend.CRM.ModelLayer.ResponseModel.ServiceModels
 	{
 		public Company company = new Company();
 		public string Message { get; set; }
+		public string code { get; set; }
 	}
 }
