@@ -12,4 +12,11 @@ namespace Xend.CRM.ModelLayer.ResponseModel.ServiceModels
 		public string Message { get; set; }
 		public string code { get; set; }
 	}
+	//public class CompanyListServiceResponseModel
+	//{
+
+	//	public List<Company> companies = new List<Company>();
+	//	public string Message { get; set; }
+	//	public string code { get; set; }
+	//}
 }

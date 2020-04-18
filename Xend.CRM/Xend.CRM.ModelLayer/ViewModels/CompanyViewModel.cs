@@ -7,11 +7,15 @@ using Xend.CRM.ModelLayer.Enums;
 
 namespace Xend.CRM.ModelLayer.ViewModels
 {
-    public class CompanyViewModel 
+    public class CompanyViewModel : BASE_ENTITY
     {
         public Guid? Id { get; set; }
         [Required]
         public string Company_Name { get; set; }
 
-    }
+		public static implicit operator CompanyViewModel(Company v)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
