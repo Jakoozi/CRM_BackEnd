@@ -33,7 +33,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			{
 				//unit of work is used to replace _context.
 
-				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email);
+				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email && p.Phonenumber == user.Phonenumber && p.XendCode == user.XendCode);
 				if(userToBeCreated != null)
 				{
 					userModel = new UserServiceResponseModel() {user = userToBeCreated, Message = "Entity Already Exists", code = "001" };
@@ -41,7 +41,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
 				else
 				{
-					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id);
+					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
 					if(checkIfCompanyExists != null)
 					{
 						userToBeCreated = new User
@@ -80,14 +80,55 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			}
 		}
 
-        //this service updates user
-        public void UpdateUserService()
-        {
+		//this service updates user
+		public UserServiceResponseModel UpdateUserService(UserViewModel user)
+		{
 
-        }
+			try
+			{
+				User toBeUpdatedUser = UnitOfWork.GetRepository<User>().Single(p => p.Id == user.Id);
+				if (toBeUpdatedUser == null)
+				{
+					userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+					return userModel;
+				}
+				else
+				{
+					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
+					if (checkIfCompanyExists != null)
+					{
+						//here i will assign directly what i want to update to the model instead of creating a new instance
+						toBeUpdatedUser.Company_Id = user.Company_Id;
+						toBeUpdatedUser.First_Name = user.First_Name;
+						toBeUpdatedUser.Last_Name = user.Last_Name;
+						toBeUpdatedUser.Email = user.Email;
+						toBeUpdatedUser.Phonenumber = user.Phonenumber;
+						toBeUpdatedUser.User_Role = user.User_Role;
+						toBeUpdatedUser.XendCode = user.XendCode;
+						toBeUpdatedUser.Status = EntityStatus.Active;
+						toBeUpdatedUser.UpdatedAt = DateTime.Now;
+						toBeUpdatedUser.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
+						UnitOfWork.GetRepository<User>().Update(toBeUpdatedUser); ;
+						UnitOfWork.SaveChanges();
 
-        //this service fetches all the user
-        public void GetAllUsersService()
+						userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Entity Updated Successfully", code = "002" };
+						return userModel;
+					}
+					else
+					{
+						userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Company Do Not Exist", code = "005" };
+						return userModel;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw;
+			}
+		}
+		//this service fetches all the user
+		public void GetAllUsersService()
         {
 
         }

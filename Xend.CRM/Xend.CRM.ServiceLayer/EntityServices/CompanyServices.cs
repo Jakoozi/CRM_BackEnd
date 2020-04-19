@@ -82,8 +82,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
                 else
                 {
-					Company ifCompanyExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
-					if(ifCompanyExistsCheck == null)
+					Company ifCompanyNameExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+					if(ifCompanyNameExistsCheck == null)
 					{
 						//here i will assign directly what i want to update to the model instead of creating a new instance
 						toBeUpdatedCompany.Company_Name = company.Company_Name;

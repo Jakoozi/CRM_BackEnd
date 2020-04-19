@@ -57,5 +57,42 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
+
+		[HttpPut("UpdateUser")]
+		public IActionResult UpdateCompany([FromBody] UserViewModel user)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+
+					UserServiceResponseModel updateMethodServiceResponseModel = _iuser.UpdateUserService(user);
+
+					if (updateMethodServiceResponseModel.code == "001")
+					{
+						return BadRequest(updateMethodServiceResponseModel.user, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
+					}
+					else if (updateMethodServiceResponseModel.code == "002")
+					{
+						return Ok(updateMethodServiceResponseModel.user, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
+					}
+					else if (updateMethodServiceResponseModel.code == "005")
+					{
+						return BadRequest(updateMethodServiceResponseModel.user, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", "003");
+					}
+				}
+				return BadRequest(null, "Null Entity", "004");
+
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 	}
+
 }

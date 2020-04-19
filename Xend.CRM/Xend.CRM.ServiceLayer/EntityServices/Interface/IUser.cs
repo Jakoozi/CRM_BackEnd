@@ -9,7 +9,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
     public interface IUser
     {
 		UserServiceResponseModel CreateUserService(UserViewModel user);
-		void UpdateUserService();
+		UserServiceResponseModel UpdateUserService(UserViewModel user);
         void GetAllUsersService();
         void GetUserByIdService();
         void DeleteUserService();
