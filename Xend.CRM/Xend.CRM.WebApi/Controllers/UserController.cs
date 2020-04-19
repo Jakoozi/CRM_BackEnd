@@ -93,6 +93,38 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
+
+		[HttpDelete("DeleteUser/{id}")]
+		public IActionResult DeleteUser(Guid id)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+
+					UserServiceResponseModel deleteResponseReciever = _iuser.DeleteUserService(id);
+
+					if (deleteResponseReciever.code == "001")
+					{
+						return BadRequest(deleteResponseReciever.user, deleteResponseReciever.Message, deleteResponseReciever.code);
+					}
+					else if (deleteResponseReciever.code == "002")
+					{
+						return Ok(deleteResponseReciever.user, deleteResponseReciever.Message, deleteResponseReciever.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", "003");
+					}
+				}
+				return BadRequest(null, "Null Entity", "004");
+
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 	}
 
 }

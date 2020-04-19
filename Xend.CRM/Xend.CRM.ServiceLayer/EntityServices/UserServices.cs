@@ -127,6 +127,44 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				throw;
 			}
 		}
+		//this service deletes user
+		public UserServiceResponseModel DeleteUserService(Guid id)
+		{
+			try
+			{
+
+				User user = UnitOfWork.GetRepository<User>().Single(p => p.Id == id);
+				if (user == null)
+				{
+					userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+					return userModel;
+				}
+				else
+				{
+					if (user.Status == EntityStatus.Active)
+					{
+						user.Status = EntityStatus.InActive;
+						UnitOfWork.GetRepository<User>().Update(user);
+						UnitOfWork.SaveChanges();
+
+						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Deleted Successfully", code = "002" };
+						return userModel;
+					}
+					else
+					{
+						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+						return userModel;
+					}
+
+
+				}
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw;
+			}
+		}
 		//this service fetches all the user
 		public void GetAllUsersService()
         {
@@ -138,11 +176,6 @@ namespace Xend.CRM.ServiceLayer.EntityServices
         {
 
         }
-
-        //this service deletes user
-        public void DeleteUserService()
-        {
-
-        }
+		
     }
 }

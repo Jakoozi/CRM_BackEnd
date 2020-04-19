@@ -10,8 +10,11 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
     {
 		UserServiceResponseModel CreateUserService(UserViewModel user);
 		UserServiceResponseModel UpdateUserService(UserViewModel user);
-        void GetAllUsersService();
+		UserServiceResponseModel DeleteUserService(Guid id);
+
+		void GetAllUsersService();
         void GetUserByIdService();
-        void DeleteUserService();
-    }
+		
+
+	}
 }
