@@ -41,26 +41,36 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
 				else
 				{
-					userToBeCreated = new User
+					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id);
+					if(checkIfCompanyExists != null)
 					{
-						Company_Id = user.Company_Id,
-						First_Name = user.First_Name,
-						Last_Name = user.Last_Name,
-						Email = user.Email,
-						Phonenumber = user.Phonenumber,
-						User_Role = user.User_Role,
-						XendCode = user.XendCode,
-						Status = EntityStatus.Active,
-						CreatedAt = DateTime.Now,
-						CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
-						UpdatedAt = DateTime.Now,
-						UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp()
-					};
-					UnitOfWork.GetRepository<User>().Add(userToBeCreated);
-					UnitOfWork.SaveChanges();
+						userToBeCreated = new User
+						{
+							Company_Id = user.Company_Id,
+							First_Name = user.First_Name,
+							Last_Name = user.Last_Name,
+							Email = user.Email,
+							Phonenumber = user.Phonenumber,
+							User_Role = user.User_Role,
+							XendCode = user.XendCode,
+							Status = EntityStatus.Active,
+							CreatedAt = DateTime.Now,
+							CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
+							UpdatedAt = DateTime.Now,
+							UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp()
+						};
+						UnitOfWork.GetRepository<User>().Add(userToBeCreated);
+						UnitOfWork.SaveChanges();
 
-					userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = "002" };
-					return userModel;
+						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = "002" };
+						return userModel;
+					}
+					else
+					{
+						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = "005" };
+						return userModel;
+					}
+					
 				}
 			}
 			catch (Exception ex)

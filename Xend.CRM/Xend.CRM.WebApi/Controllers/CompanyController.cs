@@ -64,19 +64,19 @@ namespace Xend.CRM.WebApi.Controllers
 				if (ModelState.IsValid)
 				{
 
-					CompanyServiceResponseModel createResponseReciever = _icompany.UpdateCompanyService(company);
+					CompanyServiceResponseModel createMethodServiceResponseModel = _icompany.UpdateCompanyService(company);
 
-					if (createResponseReciever.code == "001")
+					if (createMethodServiceResponseModel.code == "001")
 					{
-						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+						return BadRequest(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
-					else if (createResponseReciever.code == "002")
+					else if (createMethodServiceResponseModel.code == "002")
 					{
-						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+						return Ok(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
-					else if (createResponseReciever.code == "005")
+					else if (createMethodServiceResponseModel.code == "005")
 					{
-						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+						return BadRequest(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
 					else
 					{

@@ -17,7 +17,7 @@ namespace Xend.CRM.ModelLayer.ViewModels
         public string XendCode { get; set; }
         public User_Role User_Role { get; set; }
 
-        [ForeignKey("Company_Id")]
-        public virtual Company Company { get; set; }
+        //[ForeignKey("Company_Id")]
+        //public virtual Company Company { get; set; }
     }
 }
