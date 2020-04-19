@@ -125,7 +125,6 @@ namespace Xend.CRM.WebApi.Controllers
 		}
 
 		[HttpGet("GetCompanyById/{id}")]
-		//[HttpGet("{id}")]
 		public IActionResult GetCompanyById(Guid id)
 		{
 			try

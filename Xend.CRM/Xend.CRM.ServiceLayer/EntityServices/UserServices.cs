@@ -165,17 +165,60 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				throw;
 			}
 		}
-		//this service fetches all the user
-		public void GetAllUsersService()
-        {
 
-        }
+		//this service fetches all companies
+		public async Task<IEnumerable<User>> GetAllUsersService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<User> users = await UnitOfWork.GetRepository<User>().GetListAsync(t => t.Status == EntityStatus.Active);
+				return users;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
 
-        //this service fetches users by there id
-        public void GetUserByIdService()
-        {
+		}
 
-        }
-		
+		//this service fetches companies by there id
+		//I have an issue knowing what to return and the return type to use in this method
+		public UserServiceResponseModel GetUserByIdService(Guid id)
+		{
+			try
+			{
+				User user = UnitOfWork.GetRepository<User>().Single(p => p.Id == id);
+
+				//since i cant send company directly, i get the company and pass the values i need into the companyViewModel which i then return
+				//CompanyViewModel companyViewModel = new CompanyViewModel
+				//{
+				//    Company_Name = company.Company_Name,
+				//    Id = company.Id
+				//};
+
+				if (user != null)
+				{
+					if (user.Status == EntityStatus.Active)
+					{
+						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Fetched Successfully", code = "002" };
+						return userModel;
+					}
+					else
+					{
+						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+						return userModel;
+					}
+				}
+				userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+				return userModel;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
     }
 }

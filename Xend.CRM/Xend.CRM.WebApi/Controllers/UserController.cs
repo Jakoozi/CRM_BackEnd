@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -119,6 +120,43 @@ namespace Xend.CRM.WebApi.Controllers
 				}
 				return BadRequest(null, "Null Entity", "004");
 
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		
+		}
+		[HttpGet("GetAllUsersService")]
+		public IActionResult GetAllUsersService()
+		{
+			Task<IEnumerable<User>> ghetAllResponseReciever = _iuser.GetAllUsersService();
+			var fetchedCompanies = ghetAllResponseReciever.Result;
+			return Ok(fetchedCompanies, "Successful", "002");
+		}
+		[HttpGet("GetUserById/{id}")]
+		public IActionResult GetUserByIdService(Guid id)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+					UserServiceResponseModel getByIdResponseReciever = _iuser.GetUserByIdService(id);
+
+					if (getByIdResponseReciever.code == "001")
+					{
+						return BadRequest(getByIdResponseReciever.user, getByIdResponseReciever.Message, getByIdResponseReciever.code);
+					}
+					else if (getByIdResponseReciever.code == "002")
+					{
+						return Ok(getByIdResponseReciever.user, getByIdResponseReciever.Message, getByIdResponseReciever.code);
+					}
+					else
+					{
+						return BadRequest("Error Occured", "003");
+					}
+				}
+				return BadRequest("Null Entity", "004");
 			}
 			catch (Exception ex)
 			{
