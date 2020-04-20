@@ -43,7 +43,7 @@ namespace Xend.CRM.WebApi.Controllers
 					}
 					else if (createMethodServiceResponseModel.code == "005")
 					{
-						return Ok(createMethodServiceResponseModel.user, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
+						return BadRequest(createMethodServiceResponseModel.user, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
 					else
 					{
@@ -60,7 +60,7 @@ namespace Xend.CRM.WebApi.Controllers
 		}
 
 		[HttpPut("UpdateUser")]
-		public IActionResult UpdateCompany([FromBody] UserViewModel user)
+		public IActionResult UpdateUser([FromBody] UserViewModel user)
 		{
 			try
 			{
@@ -128,14 +128,21 @@ namespace Xend.CRM.WebApi.Controllers
 		
 		}
 		[HttpGet("GetAllUsersService")]
-		public IActionResult GetAllUsersService()
+		public IActionResult GetAllUsers()
 		{
-			Task<IEnumerable<User>> ghetAllResponseReciever = _iuser.GetAllUsersService();
-			var fetchedCompanies = ghetAllResponseReciever.Result;
-			return Ok(fetchedCompanies, "Successful", "002");
+			try
+			{
+				Task<IEnumerable<User>> ghetAllResponseReciever = _iuser.GetAllUsersService();
+				var fetchedUsers = ghetAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
 		}
 		[HttpGet("GetUserById/{id}")]
-		public IActionResult GetUserByIdService(Guid id)
+		public IActionResult GetUserById(Guid id)
 		{
 			try
 			{

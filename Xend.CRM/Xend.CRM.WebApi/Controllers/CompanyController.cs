@@ -157,10 +157,17 @@ namespace Xend.CRM.WebApi.Controllers
 		}
 		[HttpGet("GetAllCompaniesService")]
 		public IActionResult GetAllCompanies()
-		{
-			Task<IEnumerable<Company>> createResponseReciever = _icompany.GetAllCompaniesService();
-			var fetchedCompanies = createResponseReciever.Result;
-			return Ok(fetchedCompanies, "Successful", "002");
+		{	
+			try
+			{
+				Task<IEnumerable<Company>> createResponseReciever = _icompany.GetAllCompaniesService();
+				var fetchedCompanies = createResponseReciever.Result;
+				return Ok(fetchedCompanies, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
 		}
 
 

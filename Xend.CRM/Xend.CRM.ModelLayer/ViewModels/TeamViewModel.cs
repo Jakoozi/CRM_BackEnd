@@ -9,7 +9,7 @@ namespace Xend.CRM.ModelLayer.ViewModels
     public class TeamViewModel : BASE_ENTITY
     {
         public Guid Company_Id { get; set; }
-        public long Team_Name { get; set; }
+        public string Team_Name { get; set; }
 
         [ForeignKey("Company_Id")]
         public virtual Company Company { get; set; }

@@ -82,24 +82,33 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
                 else
                 {
-					Company ifCompanyNameExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
-					if(ifCompanyNameExistsCheck == null)
+					if(toBeUpdatedCompany.Status == EntityStatus.Active)
 					{
-						//here i will assign directly what i want to update to the model instead of creating a new instance
-						toBeUpdatedCompany.Company_Name = company.Company_Name;
-						toBeUpdatedCompany.UpdatedAt = DateTime.Now;
-						toBeUpdatedCompany.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
-						UnitOfWork.GetRepository<Company>().Update(toBeUpdatedCompany); ;
-						UnitOfWork.SaveChanges();
+						Company ifCompanyNameExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+						if (ifCompanyNameExistsCheck == null)
+						{
+							//here i will assign directly what i want to update to the model instead of creating a new instance
+							toBeUpdatedCompany.Company_Name = company.Company_Name;
+							toBeUpdatedCompany.UpdatedAt = DateTime.Now;
+							toBeUpdatedCompany.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
+							UnitOfWork.GetRepository<Company>().Update(toBeUpdatedCompany); ;
+							UnitOfWork.SaveChanges();
 
-						companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Updated Successfully", code = "002" };
-						return companyModel;
+							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Updated Successfully", code = "002" };
+							return companyModel;
+						}
+						else
+						{
+							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Already Exists", code = "005" };
+							return companyModel;
+						}
 					}
 					else
 					{
-						companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Already Exists", code = "005" };
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
 						return companyModel;
 					}
+					
 					
                 }
             }

@@ -19,5 +19,5 @@ namespace Xend.CRM.ModelLayer.Entities
         //This creates a relationship between the foriegn key tables and the AuditRail Table in my Database. 
         [ForeignKey("Company_Id")]
         public virtual Company Company { get; set; }
-    }
+	}
 }
