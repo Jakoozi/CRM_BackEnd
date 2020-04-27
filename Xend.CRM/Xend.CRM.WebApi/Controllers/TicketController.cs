@@ -130,21 +130,6 @@ namespace Xend.CRM.WebApi.Controllers
 			}
 		}
 		
-		[HttpGet("GetAllTickets")]
-		public IActionResult GetAllTickets()
-		{
-			try
-			{
-				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetAllTicketsService();
-				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex);
-			}
-		}
-		
 		[HttpGet("GetTicketById/{id}")]
 		public IActionResult GetTicketById(Guid id)
 		{
@@ -174,5 +159,93 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
+		[HttpGet("GetAllTickets")]
+		public IActionResult GetAllTickets()
+		{
+			try
+			{
+				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetAllTicketsService();
+				var fetchedTckets = ghetAllResponseReciever.Result;
+				return Ok(fetchedTckets, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+
+		[HttpGet("GetDeletedTickets")]
+		public IActionResult GetDeletedTickets()
+		{
+			try
+			{
+				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetDeletedTicketsService();
+				var fetchedTckets = ghetAllResponseReciever.Result;
+				return Ok(fetchedTckets, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetTicketByCompany_Id")]
+		public IActionResult GetTicketByCompany_Id(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByCompany_IdService(id);
+				var fetchedTckets = ghetAllResponseReciever.Result;
+				return Ok(fetchedTckets, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetTicketByCustomer_Id")]
+		public IActionResult GetTicketByCustomer_Id(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByCustomer_IdService(id);
+				var fetchedTckets = ghetAllResponseReciever.Result;
+				return Ok(fetchedTckets, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetTicketByCreated_UserId")]
+		public IActionResult GetTicketByCreated_UserId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByCreated_UserIdService(id);
+				var fetchedTckets = ghetAllResponseReciever.Result;
+				return Ok(fetchedTckets, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+
+		}
+		[HttpGet("GetTicketByResolved_UserId")]
+		public IActionResult GetTicketByResolved_UserId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByResolved_UserIdService(id);
+				var fetchedTckets = ghetAllResponseReciever.Result;
+				return Ok(fetchedTckets, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+
+
 	}
 }

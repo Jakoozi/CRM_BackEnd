@@ -14,6 +14,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 		CustomerServiceResponseModel UpdateCustomerService(CustomerViewModel customer);
 		CustomerServiceResponseModel DeleteCustomerService(Guid id);
 		Task<IEnumerable<Customer>> GetAllCustomerService();
+		Task<IEnumerable<Customer>> GetCustomerByCompanyIdService(Guid id);
+		Task<IEnumerable<Customer>> GetDeletedCustomerService();
 		CustomerServiceResponseModel GetCustomerByIdService(Guid id);
 
 	}

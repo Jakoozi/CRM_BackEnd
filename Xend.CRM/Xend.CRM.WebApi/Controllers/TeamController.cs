@@ -24,7 +24,7 @@ namespace Xend.CRM.WebApi.Controllers
 
 		[HttpPost("CreateTeam")]
 		public IActionResult CreateTeam([FromBody] TeamViewModel team)
-		{
+		  {
 			try
 			{
 				if (ModelState.IsValid)
@@ -154,12 +154,40 @@ namespace Xend.CRM.WebApi.Controllers
 			}
 		}
 
-		[HttpGet("GetAllTeamsService")]
+		[HttpGet("GetAllTeams")]
 		public IActionResult GetAllTeam()
 		{
 			try
 			{
 				Task<IEnumerable<Team>> getAllResponseReciever = _iteam.GetAllTeamsService();
+				var fetchedTeams = getAllResponseReciever.Result;
+				return Ok(fetchedTeams, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetTeamsByCompanyId")]
+		public IActionResult GetTeamsByCompanyId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Team>> getAllResponseReciever = _iteam.GetTeamsByCompanyIdService(id);
+				var fetchedTeams = getAllResponseReciever.Result;
+				return Ok(fetchedTeams, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetDeletedTeams")]
+		public IActionResult GetDeletedTeams()
+		{
+			try
+			{
+				Task<IEnumerable<Team>> getAllResponseReciever = _iteam.GetDeletedTeamsService();
 				var fetchedTeams = getAllResponseReciever.Result;
 				return Ok(fetchedTeams, "Successful", "002");
 			}

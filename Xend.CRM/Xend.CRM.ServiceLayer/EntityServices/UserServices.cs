@@ -33,7 +33,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			{
 				//unit of work is used to replace _context.
 
-				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email && p.Phonenumber == user.Phonenumber && p.XendCode == user.XendCode);
+				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email || p.Phonenumber == user.Phonenumber || p.XendCode == user.XendCode);
 				if(userToBeCreated != null)
 				{
 					userModel = new UserServiceResponseModel() {user = userToBeCreated, Message = "Entity Already Exists", code = "001" };
@@ -230,5 +230,52 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				throw ex;
 			}
 		}
-    }
+
+		public async Task<IEnumerable<User>> GetUsersByCompanyIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<User> users = await UnitOfWork.GetRepository<User>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active);
+				return users;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+
+		}
+		public async Task<IEnumerable<User>> GetUsersByRoleService(User_Role role)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<User> users = await UnitOfWork.GetRepository<User>().GetListAsync(t => t.User_Role == role && t.Status == EntityStatus.Active);
+				return users;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+
+		}
+		//this methodis used to fetch deleted users
+		public async Task<IEnumerable<User>> GetDeletedUsersService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<User> users = await UnitOfWork.GetRepository<User>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return users;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+
+		}
+	}
 }

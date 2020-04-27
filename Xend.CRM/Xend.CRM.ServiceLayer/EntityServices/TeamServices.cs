@@ -206,7 +206,36 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				_loggerManager.LogError(ex.Message);
 				throw ex;
 			}
-
 		}
-    }
+		//this is the service for fetching teams by there company id's
+		public async Task<IEnumerable<Team>> GetTeamsByCompanyIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Team> teams = await UnitOfWork.GetRepository<Team>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active);
+				return teams;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this fetches all deleted teams
+		public async Task<IEnumerable<Team>> GetDeletedTeamsService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Team> teams = await UnitOfWork.GetRepository<Team>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return teams;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+	}
 }

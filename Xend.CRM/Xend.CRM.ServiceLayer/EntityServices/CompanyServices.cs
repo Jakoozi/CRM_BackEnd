@@ -158,23 +158,6 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 throw;
             }
         }
-
-        //this service fetches all companies
-        public async Task<IEnumerable<Company>> GetAllCompaniesService()
-        {
-            try
-            {
-                //i am meant to await that response and asign it to an ienumerable
-                IEnumerable<Company> company = await UnitOfWork.GetRepository<Company>().GetListAsync(t => t.Status == EntityStatus.Active);
-				return company;
-			}
-            catch (Exception ex)
-            {
-                _loggerManager.LogError(ex.Message);
-                throw ex;
-            }
-
-        }
 		//this service fetches companies by there id
 		//I have an issue knowing what to return and the return type to use in this method
 		public CompanyServiceResponseModel GetCompanyByIdService(Guid id)
@@ -212,7 +195,38 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 throw ex;
             }
         }
+		//this service fetches all companies
+		public async Task<IEnumerable<Company>> GetAllCompaniesService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Company> company = await UnitOfWork.GetRepository<Company>().GetListAsync(t => t.Status == EntityStatus.Active);
+				return company;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method fetches all the deleted companies
+		public async Task<IEnumerable<Company>> GetDeletedCompaniesService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Company> company = await UnitOfWork.GetRepository<Company>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return company;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+
+		}
 
 
-    }
+	}
 }

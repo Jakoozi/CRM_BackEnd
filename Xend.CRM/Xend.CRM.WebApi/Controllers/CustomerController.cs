@@ -174,5 +174,33 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
+		[HttpGet("GetCustomerByCompanyId")]
+		public IActionResult GetCustomerByCompanyId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Customer>> ghetAllResponseReciever = _icustomer.GetCustomerByCompanyIdService(id);
+				var fetchedCustomers = ghetAllResponseReciever.Result;
+				return Ok(fetchedCustomers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetDeletedCustomer")]
+		public IActionResult GetDeletedCustomer()
+		{
+			try
+			{
+				Task<IEnumerable<Customer>> ghetAllResponseReciever = _icustomer.GetDeletedCustomerService();
+				var fetchedCustomers = ghetAllResponseReciever.Result;
+				return Ok(fetchedCustomers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 	}
 }

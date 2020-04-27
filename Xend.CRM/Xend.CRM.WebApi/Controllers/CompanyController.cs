@@ -169,6 +169,20 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
+		[HttpGet("GetDeletedCompanies")]
+		public IActionResult GetDeletedCompanies()
+		{
+			try
+			{
+				Task<IEnumerable<Company>> createResponseReciever = _icompany.GetDeletedCompaniesService();
+				var fetchedCompanies = createResponseReciever.Result;
+				return Ok(fetchedCompanies, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 
 
 

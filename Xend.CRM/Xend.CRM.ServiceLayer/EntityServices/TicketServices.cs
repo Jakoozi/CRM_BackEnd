@@ -12,6 +12,7 @@ using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -20,6 +21,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
 		ILoggerManager _loggerManager { get; }
 		TicketServiceResponseModel ticketModel;
+		TicketServiceExtention ticketServiceExtension;
 		public TicketServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
@@ -37,11 +39,10 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 					{
 						Ticket toBeCreatedTicket = new Ticket
 						{
-							Company_Id = ticket.Customer_Id,
+							Company_Id = ticket.Company_Id,
 							Customer_Id = ticket.Customer_Id,
 							Createdby_Userid = ticket.Createdby_Userid,
-							Resolvedby_Userid = ticket.Resolvedby_Userid,
-							Resolvedby_Teamid = ticket.Resolvedby_Teamid,
+							Resolvedby_Entityid = ticket.Resolvedby_Entityid,
 							Ticket_Subject = ticket.Ticket_Subject,
 							Ticket_Details = ticket.Ticket_Details,
 							Ticket_Status = ticket.Ticket_Status,
@@ -79,7 +80,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			}
 
 		}
-
+	
 		//this service updates tickets
 		public TicketServiceResponseModel UpdateTicketService(TicketViewModel ticket)
 		{
@@ -99,28 +100,30 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == ticket.Company_Id && p.Status == EntityStatus.Active);
 						if (checkIfCompanyExists != null)
 						{
-							User checkIfUserExists = UnitOfWork.GetRepository<User>().Single(p => p.Id == ticket.Resolvedby_Userid && p.Status == EntityStatus.Active);
-							if (checkIfUserExists != null)
+							User checkIfResolverIsAUser = UnitOfWork.GetRepository<User>().Single(p => p.Id == ticket.Resolvedby_Entityid && p.Status == EntityStatus.Active);
+							if (checkIfResolverIsAUser == null)
 							{
+								Team checkIfResolverIsATeam = UnitOfWork.GetRepository<Team>().Single(p => p.Id == ticket.Resolvedby_Entityid && p.Status == EntityStatus.Active);
+								if (checkIfResolverIsATeam != null)
+								{
+									//Removed stuff from here
+									string extensionServiceResponse = ticketServiceExtension.TicketUpdater(ticket);
 
-								//here i will assign directly what i want to update to the model instead of creating a new instance
-								//toBeUpdatedUser.Company_Id = user.Company_Id;
-								toBeUpdatedTicket.Resolvedby_Userid = ticket.Resolvedby_Userid;
-								toBeUpdatedTicket.Resolvedby_Teamid = ticket.Resolvedby_Teamid;
-								toBeUpdatedTicket.Ticket_Status = ticket.Ticket_Status;
-								toBeUpdatedTicket.Status = EntityStatus.Active;
-								toBeUpdatedTicket.UpdatedAt = DateTime.Now;
-								toBeUpdatedTicket.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
-								UnitOfWork.GetRepository<Ticket>().Update(toBeUpdatedTicket); ;
-								UnitOfWork.SaveChanges();
+									ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Entity Updated Successfully", code = "002" };
+									return ticketModel;
+								}
+								else
+								{
 
-								ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Entity Updated Successfully", code = "002" };
-								return ticketModel;
+									ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Ticket Resolver Do Not Exist", code = "006" };
+									return ticketModel;
+								}
 							}
 							else
 							{
-								
-								ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Ticket Resolver Do Not Exist", code = "006" };
+								string extensionServiceResponse = ticketServiceExtension.TicketUpdater(ticket);
+
+								ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Entity Updated Successfully", code = "002" };
 								return ticketModel;
 							}
 
@@ -183,22 +186,6 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				throw;
 			}
 		}
-		//this service fetches all the tickets
-		public async Task<IEnumerable<Ticket>> GetAllTicketsService()
-		{
-			try
-			{
-				//i am meant to await that response and asign it to an ienumerable
-				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.Active);
-				return tickets;
-			}
-			catch (Exception ex)
-			{
-				_loggerManager.LogError(ex.Message);
-				throw ex;
-			}
-
-		}
 		
 		//this service fetches ticket by there id
 		public TicketServiceResponseModel GetTicketByIdService(Guid id)
@@ -236,10 +223,96 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				throw ex;
 			}
 		}
-		public void GetTicketByIdService()
-        {
+		//this service fetches all the tickets
+		public async Task<IEnumerable<Ticket>> GetAllTicketsService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.Active);
+				return tickets;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
 
-        }
-
-    }
+		}
+		//this service fetches deleted tickets
+		public async Task<IEnumerable<Ticket>> GetDeletedTicketsService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return tickets;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method gets tickets by company id
+		public async Task<IEnumerable<Ticket>> GetTicketByCompany_IdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active);
+				return tickets;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method gets tickets by there customer id
+		public async Task<IEnumerable<Ticket>> GetTicketByCustomer_IdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Customer_Id == id && t.Status == EntityStatus.Active);
+				return tickets;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method gets users by the created users id
+		public async Task<IEnumerable<Ticket>> GetTicketByCreated_UserIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Createdby_Userid == id && t.Status == EntityStatus.Active);
+				return tickets;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method gets tickets by the resolved users id
+		public async Task<IEnumerable<Ticket>> GetTicketByResolved_UserIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Resolvedby_Entityid == id && t.Status == EntityStatus.Active);
+				return tickets;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+	}
 }

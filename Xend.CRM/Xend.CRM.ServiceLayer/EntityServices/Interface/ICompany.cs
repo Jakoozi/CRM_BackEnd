@@ -12,6 +12,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
     {
 		CompanyServiceResponseModel CompanyCreationService(CompanyViewModel company);
         Task<IEnumerable<Company>> GetAllCompaniesService();
+		Task<IEnumerable<Company>> GetDeletedCompaniesService();
 		CompanyServiceResponseModel GetCompanyByIdService(Guid id);
 		CompanyServiceResponseModel UpdateCompanyService(CompanyViewModel company);
 		CompanyServiceResponseModel DeleteCompanyService(Guid id);

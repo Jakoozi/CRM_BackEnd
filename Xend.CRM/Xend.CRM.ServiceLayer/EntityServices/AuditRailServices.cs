@@ -59,7 +59,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							auditModel = new AuditServiceResponseModel() { audit = null, Message = "User Does Not Exist", code = "006" };
 							return auditModel;
 						}
-				}
+					}
 					else
 					{
 						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Company Does Not Exist", code = "005" };
@@ -216,15 +216,61 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			try
 			{
 				//i am meant to await that response and asign it to an ienumerable
-				IEnumerable<Audit_Rail> audit = await UnitOfWork.GetRepository<Audit_Rail>().GetListAsync(t => t.Status == EntityStatus.Active);
-				return audit;
+				IEnumerable<Audit_Rail> audits = await UnitOfWork.GetRepository<Audit_Rail>().GetListAsync(t => t.Status == EntityStatus.Active);
+				return audits;
 			}
 			catch (Exception ex)
 			{
 				_loggerManager.LogError(ex.Message);
 				throw ex;
 			}
-			
 		}
-    }
+
+		//this service geets audits by there company id's
+		public async Task<IEnumerable<Audit_Rail>> GetAuditByCompanyIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Audit_Rail> audits = await UnitOfWork.GetRepository<Audit_Rail>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active);
+				return audits;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+
+		//this method Gets Audits By User Id
+		public async Task<IEnumerable<Audit_Rail>> GetAuditByUserIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Audit_Rail> audits = await UnitOfWork.GetRepository<Audit_Rail>().GetListAsync(t => t.User_Id == id && t.Status == EntityStatus.Active);
+				return audits;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method fetches deleted audits
+		public async Task<IEnumerable<Audit_Rail>> GetDeletedAuditsService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Audit_Rail> audits = await UnitOfWork.GetRepository<Audit_Rail>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return audits;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+	}
 }

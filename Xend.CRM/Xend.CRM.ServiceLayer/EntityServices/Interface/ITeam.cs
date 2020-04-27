@@ -15,6 +15,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 		TeamServiceResponseModel UpdateTeamService(TeamViewModel team);
 		TeamServiceResponseModel DeleteTeamService(Guid id);
 		Task<IEnumerable<Team>> GetAllTeamsService();
+		Task<IEnumerable<Team>> GetTeamsByCompanyIdService(Guid id);
+		Task<IEnumerable<Team>> GetDeletedTeamsService();
 		TeamServiceResponseModel GetTeamByIdService(Guid id);
 
 	}

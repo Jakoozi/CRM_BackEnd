@@ -60,7 +60,7 @@ namespace Xend.CRM.WebApi.Controllers
 
 		[HttpPut("UpdateAudit")]
 		public IActionResult UpdateAudit([FromBody] AuditViewModel audit)
-		{
+		 {
 			try
 			{
 				if (ModelState.IsValid)
@@ -165,7 +165,35 @@ namespace Xend.CRM.WebApi.Controllers
 		{
 			try
 			{
-				Task<IEnumerable<Audit_Rail>> ghetAllResponseReciever = _iaudit.GetAllAuditService();
+				Task<IEnumerable<Audit_Rail>> getAllResponseReciever = _iaudit.GetAllAuditService();
+				var fetchedUsers = getAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetAuditByCompanyId")]
+		public IActionResult GetAuditByCompanyId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Audit_Rail>> getAllResponseReciever = _iaudit.GetAuditByCompanyIdService(id);
+				var fetchedUsers = getAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetAuditByUserId")]
+		public IActionResult GetAuditByUserId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<Audit_Rail>> ghetAllResponseReciever = _iaudit.GetAuditByUserIdService(id);
 				var fetchedUsers = ghetAllResponseReciever.Result;
 				return Ok(fetchedUsers, "Successful", "002");
 			}
@@ -174,6 +202,19 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
-		
+		[HttpGet("GetDeletedAudits")]
+		public IActionResult GetDeletedAudits()
+		{
+			try
+			{
+				Task<IEnumerable<Audit_Rail>> ghetAllResponseReciever = _iaudit.GetDeletedAuditsService();
+				var fetchedUsers = ghetAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 	}
 }

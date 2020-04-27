@@ -15,6 +15,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 		AuditServiceResponseModel AuditDeleteService(Guid id);
 		AuditServiceResponseModel GetAuditByIdService(Guid id);
 		Task<IEnumerable<Audit_Rail>> GetAllAuditService();
+		Task<IEnumerable<Audit_Rail>> GetAuditByCompanyIdService(Guid id);
+		Task<IEnumerable<Audit_Rail>> GetAuditByUserIdService(Guid id);
+		Task<IEnumerable<Audit_Rail>> GetDeletedAuditsService();
 
 
 	}

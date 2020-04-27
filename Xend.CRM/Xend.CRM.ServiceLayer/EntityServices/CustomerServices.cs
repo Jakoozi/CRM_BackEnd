@@ -31,7 +31,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			{
 				//unit of work is used to replace _context.
 
-				Customer customerToBeCreated = UnitOfWork.GetRepository<Customer>().Single(p => p.Email == customer.Email && p.Phonenumber == customer.Phonenumber && p.XendCode == customer.XendCode);
+				Customer customerToBeCreated = UnitOfWork.GetRepository<Customer>().Single(p => p.Email == customer.Email || p.Phonenumber == customer.Phonenumber || p.XendCode == customer.XendCode);
 				if (customerToBeCreated != null)
 				{
 					customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Already Exists", code = "001" };
@@ -223,7 +223,35 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				_loggerManager.LogError(ex.Message);
 				throw ex;
 			}
-
 		}
-    }
+		public async Task<IEnumerable<Customer>> GetCustomerByCompanyIdService(Guid id)
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Customer> customers = await UnitOfWork.GetRepository<Customer>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active);
+				return customers;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this service fetches deleted customers
+		public async Task<IEnumerable<Customer>> GetDeletedCustomerService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Customer> customers = await UnitOfWork.GetRepository<Customer>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return customers;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+	}
 }

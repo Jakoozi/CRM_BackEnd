@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xend.CRM.ModelLayer.Entities;
+using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -132,8 +133,8 @@ namespace Xend.CRM.WebApi.Controllers
 		{
 			try
 			{
-				Task<IEnumerable<User>> ghetAllResponseReciever = _iuser.GetAllUsersService();
-				var fetchedUsers = ghetAllResponseReciever.Result;
+				Task<IEnumerable<User>> getAllResponseReciever = _iuser.GetAllUsersService();
+				var fetchedUsers = getAllResponseReciever.Result;
 				return Ok(fetchedUsers, "Successful", "002");
 			}
 			catch (Exception ex)
@@ -141,6 +142,7 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
+
 		[HttpGet("GetUserById/{id}")]
 		public IActionResult GetUserById(Guid id)
 		{
@@ -164,6 +166,49 @@ namespace Xend.CRM.WebApi.Controllers
 					}
 				}
 				return BadRequest("Null Entity", "004");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetUsersByCompanyId")]
+		public IActionResult GetUsersByCompanyId(Guid id)
+		{
+			try
+			{
+				Task<IEnumerable<User>> getAllResponseReciever = _iuser.GetUsersByCompanyIdService(id);
+				var fetchedUsers = getAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+
+		[HttpGet("GetUsersByRole")]
+		public IActionResult GetUsersByRole(User_Role role)
+		{
+			try
+			{
+				Task<IEnumerable<User>> getAllResponseReciever = _iuser.GetUsersByRoleService(role);
+				var fetchedUsers = getAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetDeletedUsers")]
+		public IActionResult GetDeletedUsers()
+		{
+			try
+			{
+				Task<IEnumerable<User>> getAllResponseReciever = _iuser.GetDeletedUsersService();
+				var fetchedUsers = getAllResponseReciever.Result;
+				return Ok(fetchedUsers, "Successful", "002");
 			}
 			catch (Exception ex)
 			{
