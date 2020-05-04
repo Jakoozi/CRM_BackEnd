@@ -20,11 +20,14 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 	{
 
 		ILoggerManager _loggerManager { get; }
+		IAuditExtension _iauditExtension { get; }
+		ITicketExtension _iticket { get; }
 		TicketServiceResponseModel ticketModel;
-		TicketServiceExtention ticketServiceExtension;
-		public TicketServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		public TicketServices(IUnitOfWork<XendDbContext> unitOfWork, ITicketExtension iticket, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
+			_iauditExtension = iauditExtention;
+			_iticket = iticket;
 		}
 		//this service creates new tickets
 		public TicketServiceResponseModel CreateTicketService(TicketViewModel ticket)
@@ -56,6 +59,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.GetRepository<Ticket>().Add(toBeCreatedTicket);
 						UnitOfWork.SaveChanges();
 
+						//Audit Logger
+						_iauditExtension.Auditlogger(toBeCreatedTicket.Company_Id, toBeCreatedTicket.Createdby_Userid, "You Created a Ticket");
+
 						ticketModel = new TicketServiceResponseModel() { ticket = toBeCreatedTicket, Message = "Entity Created Successfully", code = "002" };
 						return ticketModel;
 					}
@@ -84,7 +90,6 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		//this service updates tickets
 		public TicketServiceResponseModel UpdateTicketService(TicketViewModel ticket)
 		{
-			
 			try
 			{
 				Ticket toBeUpdatedTicket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == ticket.Id);
@@ -97,33 +102,24 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if (toBeUpdatedTicket.Status == EntityStatus.Active)
 					{
-						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == ticket.Company_Id && p.Status == EntityStatus.Active);
+						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == toBeUpdatedTicket.Company_Id && p.Status == EntityStatus.Active);
 						if (checkIfCompanyExists != null)
 						{
 							User checkIfResolverIsAUser = UnitOfWork.GetRepository<User>().Single(p => p.Id == ticket.Resolvedby_Entityid && p.Status == EntityStatus.Active);
-							if (checkIfResolverIsAUser == null)
+							if (checkIfResolverIsAUser != null)
 							{
-								Team checkIfResolverIsATeam = UnitOfWork.GetRepository<Team>().Single(p => p.Id == ticket.Resolvedby_Entityid && p.Status == EntityStatus.Active);
-								if (checkIfResolverIsATeam != null)
-								{
 									//Removed stuff from here
-									string extensionServiceResponse = ticketServiceExtension.TicketUpdater(ticket);
+									Ticket extensionServiceResponse = _iticket.TicketUpdater(ticket);
 
-									ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Entity Updated Successfully", code = "002" };
-									return ticketModel;
-								}
-								else
-								{
+								//Audit Logger. This update means Resolve, that is the ticket was resolved
+								_iauditExtension.Auditlogger(extensionServiceResponse.Company_Id, extensionServiceResponse.Createdby_Userid, "You Resolved a Ticket");
 
-									ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Ticket Resolver Do Not Exist", code = "006" };
-									return ticketModel;
-								}
+								ticketModel = new TicketServiceResponseModel() { ticket = extensionServiceResponse, Message = "Entity Updated Successfully", code = "002" };
+								return ticketModel;
 							}
 							else
 							{
-								string extensionServiceResponse = ticketServiceExtension.TicketUpdater(ticket);
-
-								ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Entity Updated Successfully", code = "002" };
+								ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Resolvig User Does not Exist", code = "006" };
 								return ticketModel;
 							}
 
@@ -167,6 +163,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						ticket.Status = EntityStatus.InActive;
 						UnitOfWork.GetRepository<Ticket>().Update(ticket);
 						UnitOfWork.SaveChanges();
+
+						//Audit logger
+						_iauditExtension.Auditlogger(ticket.Company_Id, ticket.Createdby_Userid, "You Deleted a Ticket");
 
 						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Entity Deleted Successfully", code = "002" };
 						return ticketModel;

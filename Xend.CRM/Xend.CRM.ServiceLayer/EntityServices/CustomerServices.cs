@@ -12,16 +12,19 @@ using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
     public class CustomerServices : BaseService, ICustomer
     {
 		ILoggerManager _loggerManager { get; }
+		IAuditExtension _iauditExtension { get; }
 		CustomerServiceResponseModel customerModel;
-		public CustomerServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		public CustomerServices(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
+			_iauditExtension = iauditExtention;
 		}
 
 		//this service creates new customers
@@ -45,6 +48,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						customerToBeCreated = new Customer
 						{
 							Company_Id = customer.Company_Id,
+							Createdby_Userid = customer.Createdby_Userid,
 							First_Name = customer.First_Name,
 							Last_Name = customer.Last_Name,
 							Email = customer.Email,
@@ -58,6 +62,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						};
 						UnitOfWork.GetRepository<Customer>().Add(customerToBeCreated);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						_iauditExtension.Auditlogger(customerToBeCreated.Company_Id, customerToBeCreated.Createdby_Userid, "You Created a Customer");
 
 						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Created Successfully", code = "002" };
 						return customerModel;
@@ -110,6 +117,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UnitOfWork.GetRepository<Customer>().Update(toBeUpdatedCustomer); ;
 							UnitOfWork.SaveChanges();
 
+							//Audit Logger
+							_iauditExtension.Auditlogger(toBeUpdatedCustomer.Company_Id, toBeUpdatedCustomer.Createdby_Userid, "You Udated a Customer");
 							customerModel = new CustomerServiceResponseModel() { customer = toBeUpdatedCustomer, Message = "Entity Updated Successfully", code = "002" };
 							return customerModel;
 						}
@@ -152,6 +161,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						customer.Status = EntityStatus.InActive;
 						UnitOfWork.GetRepository<Customer>().Update(customer);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						_iauditExtension.Auditlogger(customer.Company_Id, customer.Createdby_Userid, "You Deleted a Customer");
 
 						customerModel = new CustomerServiceResponseModel() { customer = customer, Message = "Entity Deleted Successfully", code = "002" };
 						return customerModel;

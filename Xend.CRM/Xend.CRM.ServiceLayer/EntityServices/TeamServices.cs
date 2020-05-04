@@ -12,14 +12,16 @@ using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
     public class TeamServices : BaseService, ITeam
     {
 		ILoggerManager _loggerManager { get; }
+		IAuditExtension _iauditExtension { get; }
 		TeamServiceResponseModel teamModel;
-		public TeamServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		public TeamServices(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
 		}
@@ -39,6 +41,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						{
 			
 							Company_Id = team.Company_Id,
+							Createdby_Userid = team.Createdby_Userid,
 							Team_Name = team.Team_Name,
 							Status = EntityStatus.Active,
 							CreatedAt = DateTime.Now,
@@ -49,6 +52,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						};
 						UnitOfWork.GetRepository<Team>().Add(tobeCreatedTeam);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						//_iauditExtension.Auditlogger(tobeCreatedTeam.Company_Id, tobeCreatedTeam.Createdby_Userid, "You Created a team");
 
 						teamModel = new TeamServiceResponseModel() { team = tobeCreatedTeam, Message = "Entity Created Successfully", code = "002" };
 						return teamModel;
@@ -94,11 +100,15 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 					if(toBeUpdatedTeam.Status == EntityStatus.Active)
 					{
 						//here i will assign directly what i want to update to the model instead of creating a new instance
+						
 						toBeUpdatedTeam.Team_Name = team.Team_Name;
 						toBeUpdatedTeam.UpdatedAt = DateTime.Now;
 						toBeUpdatedTeam.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
 						UnitOfWork.GetRepository<Team>().Update(toBeUpdatedTeam); ;
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						//_iauditExtension.Auditlogger(toBeUpdatedTeam.Company_Id, toBeUpdatedTeam.Createdby_Userid, "You Updated a team");
 
 						teamModel = new TeamServiceResponseModel() { team = toBeUpdatedTeam, Message = "Entity Updated Successfully", code = "002" };
 						return teamModel;
@@ -137,6 +147,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						team.Status = EntityStatus.InActive;
 						UnitOfWork.GetRepository<Team>().Update(team);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						//_iauditExtension.Auditlogger(team.Company_Id, team.Createdby_Userid, "You Deleted a team");
 
 						teamModel = new TeamServiceResponseModel() { team = team, Message = "Entity Deleted Successfully", code = "002" };
 						return teamModel;

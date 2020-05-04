@@ -42,6 +42,10 @@ namespace Xend.CRM.WebApi.Controllers
 					{
 						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
+					else if (createResponseReciever.code == "005")
+					{
+						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
 					else
 					{
 						return BadRequest(null, "Error Occured", "003");

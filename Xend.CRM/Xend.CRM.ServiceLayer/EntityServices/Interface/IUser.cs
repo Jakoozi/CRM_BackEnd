@@ -21,6 +21,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 		UserServiceResponseModel GetUserByIdService(Guid id);
 
 
+		//UserServiceResponseModel AgentLogin(UserViewModel user);
+
+
 
 	}
 }

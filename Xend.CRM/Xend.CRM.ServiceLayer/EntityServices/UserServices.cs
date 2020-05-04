@@ -13,6 +13,7 @@ using Xend.CRM.Core.DataAccessLayer.Repository;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -21,11 +22,14 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 	{
 
 		ILoggerManager _loggerManager { get; }
+		IAuditExtension _iauditExtension { get; }
 		UserServiceResponseModel userModel;
-		public UserServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		public UserServices(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
+			_iauditExtension = iauditExtention;
 		}
+
 		//this service creates new users
 		public UserServiceResponseModel CreateUserService(UserViewModel user)
         {
@@ -47,6 +51,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						userToBeCreated = new User
 						{
 							Company_Id = user.Company_Id,
+							Team_Id = user.Team_Id,
 							First_Name = user.First_Name,
 							Last_Name = user.Last_Name,
 							Email = user.Email,
@@ -61,6 +66,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						};
 						UnitOfWork.GetRepository<User>().Add(userToBeCreated);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						 _iauditExtension.Auditlogger(userToBeCreated.Company_Id, userToBeCreated.Id, "You Created A User");
 
 						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = "002" };
 						return userModel;
@@ -114,6 +122,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UnitOfWork.GetRepository<User>().Update(toBeUpdatedUser); ;
 							UnitOfWork.SaveChanges();
 
+							//Audit Logger
+							_iauditExtension.Auditlogger(toBeUpdatedUser.Company_Id, toBeUpdatedUser.Id, "You Updated a User");
+
 							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Entity Updated Successfully", code = "002" };
 							return userModel;
 						}
@@ -156,6 +167,10 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						user.Status = EntityStatus.InActive;
 						UnitOfWork.GetRepository<User>().Update(user);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						_iauditExtension.Auditlogger(user.Company_Id, user.Id, "You Deleted a User");
+
 
 						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Deleted Successfully", code = "002" };
 						return userModel;

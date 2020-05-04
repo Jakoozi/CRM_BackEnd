@@ -17,7 +17,8 @@ namespace Xend.CRM.ModelLayer.Entities
 		//the ? after the Guid is for nullable entity value
 		public string Ticket_Subject { get; set; }
         public string Ticket_Details { get; set; }
-        public Ticket_Status Ticket_Status { get; set; }
+		public string Staff_Response { get; set; }
+		public Ticket_Status Ticket_Status { get; set; }
 
 		//This creates a relationship between the foriegn key tables and the AuditRail Table in my Database. 
 		[ForeignKey("Company_Id")]

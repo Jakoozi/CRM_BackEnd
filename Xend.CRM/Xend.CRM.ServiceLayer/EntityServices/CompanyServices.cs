@@ -15,17 +15,21 @@ using System.Threading.Tasks;
 using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
     public class CompanyServices : BaseService, ICompany
     {
         ILoggerManager _loggerManager { get; }
+		IAuditExtension _iauditExtension { get; }
 		CompanyServiceResponseModel companyModel;
-		public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, IAuditExtension iauditExtention, ILoggerManager loggerManager) : base(unitOfWork, mapper)
         {
             _loggerManager = loggerManager;
-        }
+			_iauditExtension = iauditExtention;
+
+		}
 
         //this service creates companies
         public CompanyServiceResponseModel CompanyCreationService  (CompanyViewModel company)
@@ -42,21 +46,35 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 }
                 else
                 {
-                    createdCompany = new Company
-                    {
-                        Company_Name = company.Company_Name,
-                        Status = EntityStatus.Active,
-                        CreatedAt = DateTime.Now,
-                        CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
-                        UpdatedAt = DateTime.Now,
-                        UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp()
-                        
-                    };
-                    UnitOfWork.GetRepository<Company>().Add(createdCompany);
-                    UnitOfWork.SaveChanges();
+					//User ifUserExistsCheck = UnitOfWork.GetRepository<User>().Single(p => p.Id == company.Createdby_Userid);
+					//if(ifUserExistsCheck != null)
+					//{
+						createdCompany = new Company
+						{
+							Createdby_Userid = company.Createdby_Userid,
+							Company_Name = company.Company_Name,
+							Status = EntityStatus.Active,
+							CreatedAt = DateTime.Now,
+							CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
+							UpdatedAt = DateTime.Now,
+							UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp()
 
-					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Created Successfully", code = "002" };
-					return companyModel;
+						};
+						UnitOfWork.GetRepository<Company>().Add(createdCompany);
+						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						_iauditExtension.Auditlogger(createdCompany.Id, createdCompany.Createdby_Userid, "You Created a Company");
+
+						companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Created Successfully", code = "002" };
+						return companyModel;
+					//}
+					//else
+					//{
+					//	companyModel = new CompanyServiceResponseModel() { company = null, Message = "Creating User does not Exist", code = "005" };
+					//	return companyModel;
+					//}
+                   
 					
                 }
             }
@@ -88,11 +106,15 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						if (ifCompanyNameExistsCheck == null)
 						{
 							//here i will assign directly what i want to update to the model instead of creating a new instance
+					
 							toBeUpdatedCompany.Company_Name = company.Company_Name;
 							toBeUpdatedCompany.UpdatedAt = DateTime.Now;
 							toBeUpdatedCompany.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
 							UnitOfWork.GetRepository<Company>().Update(toBeUpdatedCompany); ;
 							UnitOfWork.SaveChanges();
+
+							//Audit Logger
+							_iauditExtension.Auditlogger(toBeUpdatedCompany.Id, toBeUpdatedCompany.Createdby_Userid, "You Updated A Company");
 
 							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Updated Successfully", code = "002" };
 							return companyModel;
@@ -139,6 +161,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						company.Status = EntityStatus.InActive;
 						UnitOfWork.GetRepository<Company>().Update(company);
 						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						_iauditExtension.Auditlogger(company.Id, company.Createdby_Userid, "You Deleted a Company");
 
 						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Deleted Successfully", code = "002" };
 						return companyModel;

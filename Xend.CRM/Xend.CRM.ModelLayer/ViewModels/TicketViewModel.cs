@@ -17,7 +17,8 @@ namespace Xend.CRM.ModelLayer.ViewModels
         //the ? after the Guid is for nullable entity value
         public string Ticket_Subject { get; set; }
         public string Ticket_Details { get; set; }
-        public Ticket_Status Ticket_Status { get; set; }
+		public string Staff_Response { get; set; }
+		public Ticket_Status Ticket_Status { get; set; }
 
         [ForeignKey("Company_Id")]
         public virtual Company Company { get; set; }
