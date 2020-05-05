@@ -9,7 +9,8 @@ namespace Xend.CRM.ModelLayer.ViewModels
     public class CustomerViewModel : BASE_ENTITY
     {
         public Guid Company_Id { get; set; }
-        public string First_Name { get; set; }
+		public Guid Createdby_Userid { get; set; }
+		public string First_Name { get; set; }
         public string Last_Name { get; set; }
         public string Phonenumber { get; set; }
         public string Email { get; set; }
@@ -17,5 +18,7 @@ namespace Xend.CRM.ModelLayer.ViewModels
 
         [ForeignKey("Company_Id")]
         public virtual Company Company { get; set; }
-    }
+		[ForeignKey("Createdby_Userid")]
+		public virtual User CreatedUser { get; set; }
+	}
 }

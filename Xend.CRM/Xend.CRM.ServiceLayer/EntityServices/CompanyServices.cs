@@ -13,44 +13,69 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
     public class CompanyServices : BaseService, ICompany
     {
         ILoggerManager _loggerManager { get; }
-        public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		IAuditExtension _iauditExtension { get; }
+		CompanyServiceResponseModel companyModel;
+		public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, IAuditExtension iauditExtention, ILoggerManager loggerManager) : base(unitOfWork, mapper)
         {
             _loggerManager = loggerManager;
-        }
+			_iauditExtension = iauditExtention;
+
+		}
 
         //this service creates companies
-        public string CompanyCreationService(CompanyViewModel company)
+        public CompanyServiceResponseModel CompanyCreationService  (CompanyViewModel company)
         {
             try
             {
                 //unit of work is used to replace _context.
-                Company comp = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
-                if (comp != null)
+                Company createdCompany = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+                if (createdCompany != null)
                 {
-                    return "Entity Already Exists";
+					
+					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Already Exists", code = "001" };
+					return companyModel;
                 }
                 else
                 {
-                    comp = new Company
-                    {
-                        Company_Name = company.Company_Name,
-                        Status = EntityStatus.Active,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp(),
-                        UpdatedAt = DateTime.UtcNow,
-                        UpdatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp()
-                        
-                    };
-                    UnitOfWork.GetRepository<Company>().Add(comp);
-                    UnitOfWork.SaveChanges();
+					//User ifUserExistsCheck = UnitOfWork.GetRepository<User>().Single(p => p.Id == company.Createdby_Userid);
+					//if(ifUserExistsCheck != null)
+					//{
+						createdCompany = new Company
+						{
+							Createdby_Userid = company.Createdby_Userid,
+							Company_Name = company.Company_Name,
+							Status = EntityStatus.Active,
+							CreatedAt = DateTime.Now,
+							CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
+							UpdatedAt = DateTime.Now,
+							UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp()
 
-                    return "Entity Created Successfully";
+						};
+						UnitOfWork.GetRepository<Company>().Add(createdCompany);
+						UnitOfWork.SaveChanges();
+
+						//Audit Logger
+						_iauditExtension.Auditlogger(createdCompany.Id, createdCompany.Createdby_Userid, "You Created a Company");
+
+						companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Created Successfully", code = "002" };
+						return companyModel;
+					//}
+					//else
+					//{
+					//	companyModel = new CompanyServiceResponseModel() { company = null, Message = "Creating User does not Exist", code = "005" };
+					//	return companyModel;
+					//}
+                   
+					
                 }
             }
             catch (Exception ex)
@@ -61,25 +86,52 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
         }
 
-        //this service updates a company by its id
-        public string UpdateCompanyService(CompanyViewModel company)
+		//this service updates a company by its id
+		public CompanyServiceResponseModel UpdateCompanyService(CompanyViewModel company)
         {
+			
             try
             {
-                Company comp = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
-                if (comp == null)
+                Company toBeUpdatedCompany = UnitOfWork.GetRepository<Company>().Single(p => p.Id == company.Id);
+                if (toBeUpdatedCompany == null)
                 {
-                    return "Entity Does Not Exist";
-                }
+					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+					return companyModel;
+				}
                 else
                 {
-                    //here i will assign directly what i want to update to the model instead of creating a new instance
-                    comp.Company_Name = company.Company_Name;
-                    comp.UpdatedAt = DateTime.UtcNow;
-                    comp.UpdatedAtTimeStamp = DateTime.UtcNow.ToTimeStamp();
-                    UnitOfWork.SaveChanges();
+					if(toBeUpdatedCompany.Status == EntityStatus.Active)
+					{
+						Company ifCompanyNameExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+						if (ifCompanyNameExistsCheck == null)
+						{
+							//here i will assign directly what i want to update to the model instead of creating a new instance
+					
+							toBeUpdatedCompany.Company_Name = company.Company_Name;
+							toBeUpdatedCompany.UpdatedAt = DateTime.Now;
+							toBeUpdatedCompany.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
+							UnitOfWork.GetRepository<Company>().Update(toBeUpdatedCompany); ;
+							UnitOfWork.SaveChanges();
 
-                    return "Entity Updated Successfully";
+							//Audit Logger
+							_iauditExtension.Auditlogger(toBeUpdatedCompany.Id, toBeUpdatedCompany.Createdby_Userid, "You Updated A Company");
+
+							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Updated Successfully", code = "002" };
+							return companyModel;
+						}
+						else
+						{
+							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Already Exists", code = "005" };
+							return companyModel;
+						}
+					}
+					else
+					{
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						return companyModel;
+					}
+					
+					
                 }
             }
             catch (Exception ex)
@@ -91,22 +143,38 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
         //this service deletes companies from the CRM. It does not actually delete this services,
         //It only changes there status from Active to Inactive.
-        public string DeleteCompanyService(Guid id)
+        public CompanyServiceResponseModel DeleteCompanyService(Guid id)
         {
             try
             {
-                Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
+				
+				Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
                 if (company == null)
                 {
-                    return "Entity Does Not Exist";
+					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+					return companyModel;
                 }
                 else
                 {
-                    company.Status = EntityStatus.Active;
-                    //UnitOfWork.GetRepository<Company>().Update(company);
-                    UnitOfWork.SaveChanges();
+					if(company.Status == EntityStatus.Active)
+					{
+						company.Status = EntityStatus.InActive;
+						UnitOfWork.GetRepository<Company>().Update(company);
+						UnitOfWork.SaveChanges();
 
-                    return "Entity Deleted Successfully";
+						//Audit Logger
+						_iauditExtension.Auditlogger(company.Id, company.Createdby_Userid, "You Deleted a Company");
+
+						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Deleted Successfully", code = "002" };
+						return companyModel;
+					}
+					else
+					{
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						return companyModel;
+					}
+					
+					
                 }
             }
             catch (Exception ex)
@@ -115,44 +183,36 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 throw;
             }
         }
-
-        //this service fetches all companies
-        public async Task<IEnumerable<Company>> GetAllCompaniesService()
-        {
-            try
-            {
-                //i am meant to await that response and asign it to an ienumerable
-                IEnumerable<Company> company = await UnitOfWork.GetRepository<Company>().GetListAsync();
-                return company;
-            }
-            catch (Exception ex)
-            {
-                _loggerManager.LogError(ex.Message);
-                throw ex;
-            }
-
-        }
-
-        //this service fetches companies by there id
-        //I have an issue knowing what to return and the return type to use in this method
-        public CompanyViewModel GetCompanyByIdService(Guid id)
+		//this service fetches companies by there id
+		//I have an issue knowing what to return and the return type to use in this method
+		public CompanyServiceResponseModel GetCompanyByIdService(Guid id)
         {
             try
             {
                 Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
 
                 //since i cant send company directly, i get the company and pass the values i need into the companyViewModel which i then return
-                CompanyViewModel companyViewModel = new CompanyViewModel
-                {
-                    Company_Name = company.Company_Name,
-                    Company_Id = company.Id
-                };
+                //CompanyViewModel companyViewModel = new CompanyViewModel
+                //{
+                //    Company_Name = company.Company_Name,
+                //    Id = company.Id
+                //};
 
                 if (company != null)
                 {
-                    return companyViewModel;
-                }
-                return null;
+					if(company.Status == EntityStatus.Active)
+					{
+						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Fetched Successfully", code = "002" };
+						return companyModel;
+					}
+					else
+					{
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						return companyModel;
+					}
+				}
+				companyModel = new CompanyServiceResponseModel() {company = null, Message = "Entity Does Not Exist", code = "001" };
+                return companyModel;
             }
             catch (Exception ex)
             {
@@ -160,7 +220,38 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 throw ex;
             }
         }
+		//this service fetches all companies
+		public async Task<IEnumerable<Company>> GetAllCompaniesService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Company> company = await UnitOfWork.GetRepository<Company>().GetListAsync(t => t.Status == EntityStatus.Active);
+				return company;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+		}
+		//this method fetches all the deleted companies
+		public async Task<IEnumerable<Company>> GetDeletedCompaniesService()
+		{
+			try
+			{
+				//i am meant to await that response and asign it to an ienumerable
+				IEnumerable<Company> company = await UnitOfWork.GetRepository<Company>().GetListAsync(t => t.Status == EntityStatus.InActive);
+				return company;
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw ex;
+			}
+
+		}
 
 
-    }
+	}
 }

@@ -11,6 +11,7 @@ using Xend.CRM.ServiceLayer.EntityServices;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 using Xend.CRM.ServiceLayer.Logger;
 using Xend.CRM.ServiceLayer.MessageBroker;
+using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.WebApi.Extensions
 {
@@ -35,11 +36,15 @@ namespace Xend.CRM.WebApi.Extensions
             services.AddTransient<ITeam, TeamServices>();
             services.AddTransient<ITicket, TicketServices>();
             services.AddTransient<IUser, UserServices>();
+			services.AddTransient<ILogin, LoginService>();
+
+			//my Model extension registration
+			services.AddTransient<ITicketExtension ,TicketServiceExtention>();
+			services.AddTransient<IAuditExtension, AuditServiceExtension>();
 
 
 
-
-            return services;
+			return services;
         }
         public static IServiceCollection IoCRootResolver(this IServiceCollection services, AppSetting appSetting)
         {

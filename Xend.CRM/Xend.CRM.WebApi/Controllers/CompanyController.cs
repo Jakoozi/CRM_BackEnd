@@ -5,151 +5,191 @@ using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 using Xend.CRM.ModelLayer.ResponseModel;
+using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
+using System.Collections.Generic;
+using Xend.CRM.ModelLayer.Entities;
+using System.Threading.Tasks;
 
 namespace Xend.CRM.WebApi.Controllers
 {
-    [Route("api/Company")]
-    [ApiController]
-    //meant to inherit from BaseController
-    public class CompanyController : BaseAPIController
-    {
-        ICompany _icompany { get; }
+	[Route("api/Company")]
+	[ApiController]
+	//meant to inherit from BaseController
+	public class CompanyController : BaseAPIController
+	{
+		ICompany _icompany { get; }
 
-        public CompanyController(ICompany icompany)
-        {
-            _icompany = icompany;
-        }
+		public CompanyController(ICompany icompany)
+		{
+			_icompany = icompany;
+		}
 
-        [HttpPost("CreateCompany")]
-        public IActionResult CreateCompany([FromBody] CompanyViewModel company)
-        {
-            try
-            {
-                if(ModelState.IsValid)
-                {
+		[HttpPost("CreateCompany")]
+		public IActionResult CreateCompany([FromBody] CompanyViewModel company)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
 
-                    string createResponseReciever = _icompany.CompanyCreationService(company);
-              
-                    if (createResponseReciever == "Entity Already Exists")
-                    {
-                        return BadRequest("Entity Already Exists", "001");
-                    }
-                    else if (createResponseReciever == "Entity Created Successfully")
-                    {
-                        return Ok("Entity Created Successfully", "002");
-                    }
-                    else
-                    {
-                        return BadRequest("Error Occured", "003");
-                    }
-                }
-                return BadRequest("Null Entity", "004");
+					CompanyServiceResponseModel createResponseReciever = _icompany.CompanyCreationService(company);
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+					if (createResponseReciever.code == "001")
+					{
+						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else if (createResponseReciever.code == "002")
+					{
+						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else if (createResponseReciever.code == "005")
+					{
+						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", "003");
+					}
+				}
+				return BadRequest(null, "Null Entity", "004");
 
-        [HttpPut("UpdateCompany")]
-        public IActionResult UpdateCompany([FromBody] CompanyViewModel company)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 
-                    string createResponseReciever = _icompany.UpdateCompanyService(company);
+		[HttpPut("UpdateCompany")]
+		public IActionResult UpdateCompany([FromBody] CompanyViewModel company)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
 
-                    if (createResponseReciever == "Entity Does Not Exist")
-                    {
-                        return BadRequest("Entity Does Not Exist", "001");
-                    }
-                    else if (createResponseReciever == "Entity Updated Successfully")
-                    {
-                        return Ok("Entity Updated Successfully", "002");
-                    }
-                    else
-                    {
-                        return BadRequest("Error Occured", "003");
-                    }
-                }
-                return BadRequest("Null Entity", "004");
+					CompanyServiceResponseModel createMethodServiceResponseModel = _icompany.UpdateCompanyService(company);
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+					if (createMethodServiceResponseModel.code == "001")
+					{
+						return BadRequest(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
+					}
+					else if (createMethodServiceResponseModel.code == "002")
+					{
+						return Ok(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
+					}
+					else if (createMethodServiceResponseModel.code == "005")
+					{
+						return BadRequest(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", "003");
+					}
+				}
+				return BadRequest(null, "Null Entity", "004");
 
-        [HttpDelete("DeleteCompany/{id}")]
-        public IActionResult DeleteCompany(Guid id)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 
-                    string createResponseReciever = _icompany.DeleteCompanyService(id);
+		[HttpDelete("DeleteCompany/{id}")]
+		public IActionResult DeleteCompany(Guid id)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
 
-                    if (createResponseReciever == "Entity Does Not Exist")
-                    {
-                        return BadRequest("Entity Does Not Exist", "001");
-                    }
-                    else if (createResponseReciever == "Entity Deleted Successfully")
-                    {
-                        return Ok("Entity Deleted Successfully", "002");
-                    }
-                    else
-                    {
-                        return BadRequest("Error Occured", "003");
-                    }
-                }
-                return BadRequest("Null Entity", "004");
+					CompanyServiceResponseModel createResponseReciever = _icompany.DeleteCompanyService(id);
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+					if (createResponseReciever.code == "001")
+					{
+						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else if (createResponseReciever.code == "002")
+					{
+						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", "003");
+					}
+				}
+				return BadRequest(null, "Null Entity", "004");
 
-        [HttpGet("GetCompanyById/{id}")]
-        public IActionResult GetByCompanyId(Guid id)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 
-                    CompanyViewModel createResponseReciever = _icompany.GetCompanyByIdService(id);
+		[HttpGet("GetCompanyById/{id}")]
+		public IActionResult GetCompanyById(Guid id)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
 
-                    if (createResponseReciever == null)
-                    {
-                        return BadRequest("Entity Does Not Exist", "001");
-                    }
-                    else if (createResponseReciever != null)
-                    {
-                        return Ok(createResponseReciever, "Entity Fetched Successfully", "002");
-                    }
-                    else
-                    {
-                        return BadRequest("Error Occured", "003");
-                    }
-                }
-                return BadRequest("Null Entity", "004");
+					CompanyServiceResponseModel createResponseReciever = _icompany.GetCompanyByIdService(id);
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+					if (createResponseReciever.code == "001")
+					{
+						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else if (createResponseReciever.code == "002")
+					{
+						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
+					}
+					else
+					{
+						return BadRequest("Error Occured", "003");
+					}
+				}
+				return BadRequest("Null Entity", "004");
+
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetAllCompaniesService")]
+		public IActionResult GetAllCompanies()
+		{	
+			try
+			{
+				Task<IEnumerable<Company>> createResponseReciever = _icompany.GetAllCompaniesService();
+				var fetchedCompanies = createResponseReciever.Result;
+				return Ok(fetchedCompanies, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		[HttpGet("GetDeletedCompanies")]
+		public IActionResult GetDeletedCompanies()
+		{
+			try
+			{
+				Task<IEnumerable<Company>> createResponseReciever = _icompany.GetDeletedCompaniesService();
+				var fetchedCompanies = createResponseReciever.Result;
+				return Ok(fetchedCompanies, "Successful", "002");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
 
 
 
 
-    }
+	}
 }

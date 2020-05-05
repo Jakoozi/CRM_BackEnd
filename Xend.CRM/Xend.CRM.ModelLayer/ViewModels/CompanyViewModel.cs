@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.Enums;
 
 namespace Xend.CRM.ModelLayer.ViewModels
 {
-    public class CompanyViewModel
+    public class CompanyViewModel : BASE_ENTITY
     {
-        public Guid? Company_Id { get; set; }
-        [Required]
+		public Guid Createdby_Userid { get; set; }
+		[Required]
         public string Company_Name { get; set; }
 
-    }
+
+		//this is the datatable relationship
+		[ForeignKey("Createdby_Userid")]
+		public virtual User CreatedUser { get; set; }
+		//public static implicit operator CompanyViewModel(Company v)
+		//{
+		//	throw new NotImplementedException();
+		//}
+	}
 }
