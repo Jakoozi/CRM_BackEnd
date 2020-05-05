@@ -52,6 +52,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						{
 							Company_Id = user.Company_Id,
 							Team_Id = user.Team_Id,
+							User_Password = user.User_Password,
 							First_Name = user.First_Name,
 							Last_Name = user.Last_Name,
 							Email = user.Email,
@@ -104,12 +105,13 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if(toBeUpdatedUser.Status == EntityStatus.Active)
 					{
-						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
+						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == toBeUpdatedUser.Company_Id && p.Status == EntityStatus.Active);
 						if (checkIfCompanyExists != null)
 						{
 
 							//here i will assign directly what i want to update to the model instead of creating a new instance
 							//toBeUpdatedUser.Company_Id = user.Company_Id;
+							toBeUpdatedUser.User_Password = user.User_Password;
 							toBeUpdatedUser.First_Name = user.First_Name;
 							toBeUpdatedUser.Last_Name = user.Last_Name;
 							toBeUpdatedUser.Email = user.Email;
