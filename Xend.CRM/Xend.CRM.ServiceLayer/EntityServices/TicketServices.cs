@@ -48,7 +48,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							Resolvedby_Entityid = ticket.Resolvedby_Entityid,
 							Ticket_Subject = ticket.Ticket_Subject,
 							Ticket_Details = ticket.Ticket_Details,
-							Ticket_Status = ticket.Ticket_Status,
+							Ticket_Status = Ticket_Status.New,
 							Status = EntityStatus.Active,
 							CreatedAt = DateTime.Now,
 							CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
@@ -185,7 +185,45 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				throw;
 			}
 		}
-		
+		public TicketServiceResponseModel CloseTicketService(Guid id)
+		{
+			try
+			{
+				Ticket ticket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == id);
+				if (ticket == null)
+				{
+					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+					return ticketModel;
+				}
+				else
+				{
+					if (ticket.Status == EntityStatus.Active)
+					{
+						ticket.Ticket_Status = Ticket_Status.Closed;
+						UnitOfWork.GetRepository<Ticket>().Update(ticket);
+						UnitOfWork.SaveChanges();
+
+						//Audit logger
+						_iauditExtension.Auditlogger(ticket.Company_Id, ticket.Createdby_Userid, "You Closed a Ticket");
+
+						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Ticket Closed Successfully", code = "002" };
+						return ticketModel;
+					}
+					else
+					{
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+						return ticketModel;
+					}
+
+
+				}
+			}
+			catch (Exception ex)
+			{
+				_loggerManager.LogError(ex.Message);
+				throw;
+			}
+		}
 		//this service fetches ticket by there id
 		public TicketServiceResponseModel GetTicketByIdService(Guid id)
 		{

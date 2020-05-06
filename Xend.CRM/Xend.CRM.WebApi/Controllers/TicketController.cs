@@ -129,7 +129,38 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
-		
+		[HttpPut("CloseTicket/{id}")]
+		public IActionResult CloseTicket(Guid id)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+
+					TicketServiceResponseModel closeResponseReciever = _iticket.CloseTicketService(id);
+
+					if (closeResponseReciever.code == "001")
+					{
+						return BadRequest(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
+					}
+					else if (closeResponseReciever.code == "002")
+					{
+						return Ok(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", "003");
+					}
+				}
+				return BadRequest(null, "Null Entity", "004");
+
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+
 		[HttpGet("GetTicketById/{id}")]
 		public IActionResult GetTicketById(Guid id)
 		{

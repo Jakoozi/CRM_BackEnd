@@ -13,6 +13,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 		TicketServiceResponseModel CreateTicketService(TicketViewModel ticket);
 		TicketServiceResponseModel UpdateTicketService(TicketViewModel ticket);
 		TicketServiceResponseModel DeleteTicketService(Guid id);
+		TicketServiceResponseModel CloseTicketService(Guid id);
 		TicketServiceResponseModel GetTicketByIdService(Guid id);
 		Task<IEnumerable<Ticket>> GetAllTicketsService();
 		Task<IEnumerable<Ticket>> GetDeletedTicketsService();
