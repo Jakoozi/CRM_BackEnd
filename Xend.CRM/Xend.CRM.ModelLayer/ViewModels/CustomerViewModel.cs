@@ -10,15 +10,13 @@ namespace Xend.CRM.ModelLayer.ViewModels
     {
         public Guid Company_Id { get; set; }
 		public Guid Createdby_Userid { get; set; }
+		public Guid?  Updatedby_Userid { get; set; }
 		public string First_Name { get; set; }
         public string Last_Name { get; set; }
         public string Phonenumber { get; set; }
         public string Email { get; set; }
         public string XendCode { get; set; }
 
-        [ForeignKey("Company_Id")]
-        public virtual Company Company { get; set; }
-		[ForeignKey("Createdby_Userid")]
-		public virtual User CreatedUser { get; set; }
+      
 	}
 }

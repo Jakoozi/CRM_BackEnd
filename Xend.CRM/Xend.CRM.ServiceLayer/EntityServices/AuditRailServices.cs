@@ -9,6 +9,7 @@ using Xend.CRM.ModelLayer.DbContexts;
 using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -19,6 +20,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
     {
 		ILoggerManager _loggerManager { get; }
 		AuditServiceResponseModel auditModel;
+		ResponseCodes responseCode = new ResponseCodes();
 		public AuditRailServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
@@ -51,18 +53,18 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UnitOfWork.GetRepository<Audit_Rail>().Add(auditToBeCreated);
 							UnitOfWork.SaveChanges();
 
-							auditModel = new AuditServiceResponseModel() { audit = auditToBeCreated, Message = "Entity Created Successfully", code = "002" };
+							auditModel = new AuditServiceResponseModel() { audit = auditToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful};
 							return auditModel;
 						}
 						else
 						{
-							auditModel = new AuditServiceResponseModel() { audit = null, Message = "User Does Not Exist", code = "006" };
+							auditModel = new AuditServiceResponseModel() { audit = null, Message = "User Does Not Exist", code = responseCode.ErrorOccured };
 							return auditModel;
 						}
 					}
 					else
 					{
-						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Company Does Not Exist", code = "005" };
+						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Company Does Not Exist", code = responseCode.ErrorOccured };
 						return auditModel;
 					}
 			}
@@ -82,7 +84,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Audit_Rail toBeUpdatedAudit = UnitOfWork.GetRepository<Audit_Rail>().Single(p => p.Id == audit.Id);
 				if (toBeUpdatedAudit == null)
 				{
-					auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = "001" };
+					auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return auditModel;
 				}
 				else
@@ -105,24 +107,24 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 								UnitOfWork.GetRepository<Audit_Rail>().Update(toBeUpdatedAudit); ;
 								UnitOfWork.SaveChanges();
 
-								auditModel = new AuditServiceResponseModel() { audit = toBeUpdatedAudit, Message = "Entity Updated Successfully", code = "002" };
+								auditModel = new AuditServiceResponseModel() { audit = toBeUpdatedAudit, Message = "Entity Updated Successfully", code = responseCode.Successful};
 								return auditModel;
 							}
 							else
 							{
-								auditModel = new AuditServiceResponseModel() { audit = null, Message = "user Do Not Exist", code = "006" };
+								auditModel = new AuditServiceResponseModel() { audit = null, Message = "user Do Not Exist", code = responseCode.ErrorOccured };
 								return auditModel;
 							}
 						}
 						else
 						{
-							auditModel = new AuditServiceResponseModel() { audit = null, Message = "Company Do Not Exist", code = "005" };
+							auditModel = new AuditServiceResponseModel() { audit = null, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 							return auditModel;
 						}
 					}
 					else
 					{
-						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = "001" };
+						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return auditModel;
 					}
 
@@ -143,7 +145,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Audit_Rail audit = UnitOfWork.GetRepository<Audit_Rail>().Single(p => p.Id == id);
 				if (audit == null)
 				{
-					auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = "001" };
+					auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return auditModel;
 				}
 				else
@@ -154,12 +156,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.GetRepository<Audit_Rail>().Update(audit);
 						UnitOfWork.SaveChanges();
 
-						auditModel = new AuditServiceResponseModel() { audit = audit, Message = "Entity Deleted Successfully", code = "002" };
+						auditModel = new AuditServiceResponseModel() { audit = audit, Message = "Entity Deleted Successfully", code = responseCode.Successful};
 						return auditModel;
 					}
 					else
 					{
-						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = "001" };
+						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return auditModel;
 					}
 
@@ -191,16 +193,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if (audit.Status == EntityStatus.Active)
 					{
-						auditModel = new AuditServiceResponseModel() { audit = audit, Message = "Entity Fetched Successfully", code = "002" };
+						auditModel = new AuditServiceResponseModel() { audit = audit, Message = "Entity Fetched Successfully", code = responseCode.Successful};
 						return auditModel;
 					}
 					else
 					{
-						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = "001" };
+						auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return auditModel;
 					}
 				}
-				auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = "001" };
+				auditModel = new AuditServiceResponseModel() { audit = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 				return auditModel;
 			}
 			catch (Exception ex)

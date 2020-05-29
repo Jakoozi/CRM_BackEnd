@@ -10,6 +10,7 @@ namespace Xend.CRM.ModelLayer.Entities
         public Guid Company_Id { get; set; }
 		public Guid Createdby_Userid { get; set; }
 		public string Team_Name { get; set; }
+		public string Team_Description { get; set; }
 
         //This creates a relationship between the foriegn key tables and the AuditRail Table in my Database. 
         [ForeignKey("Company_Id")]

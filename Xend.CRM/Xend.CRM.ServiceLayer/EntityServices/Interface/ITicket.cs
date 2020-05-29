@@ -10,8 +10,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 {
     public interface ITicket
     {
-		TicketServiceResponseModel CreateTicketService(TicketViewModel ticket);
-		TicketServiceResponseModel UpdateTicketService(TicketViewModel ticket);
+		Task<TicketServiceResponseModel> CreateTicketService(TicketViewModel ticket);
+		Task<TicketServiceResponseModel> ResolveTicketService(TicketViewModel ticket);
 		TicketServiceResponseModel DeleteTicketService(Guid id);
 		TicketServiceResponseModel CloseTicketService(Guid id);
 		TicketServiceResponseModel GetTicketByIdService(Guid id);

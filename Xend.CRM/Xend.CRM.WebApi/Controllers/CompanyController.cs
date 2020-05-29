@@ -18,6 +18,7 @@ namespace Xend.CRM.WebApi.Controllers
 	public class CompanyController : BaseAPIController
 	{
 		ICompany _icompany { get; }
+		ResponseCodes responseCode = new ResponseCodes();
 
 		public CompanyController(ICompany icompany)
 		{
@@ -34,24 +35,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					CompanyServiceResponseModel createResponseReciever = _icompany.CompanyCreationService(company);
 
-					if (createResponseReciever.code == "001")
+					if (createResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
-					else if (createResponseReciever.code == "002")
+					else if (createResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
-					else if (createResponseReciever.code == "005")
-					{
-						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
-					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -70,24 +67,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					CompanyServiceResponseModel createMethodServiceResponseModel = _icompany.UpdateCompanyService(company);
 
-					if (createMethodServiceResponseModel.code == "001")
+					if (createMethodServiceResponseModel.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
-					else if (createMethodServiceResponseModel.code == "002")
+					else if (createMethodServiceResponseModel.code == responseCode.Successful)
 					{
 						return Ok(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
-					else if (createMethodServiceResponseModel.code == "005")
-					{
-						return BadRequest(createMethodServiceResponseModel.company, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
-					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -106,20 +99,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					CompanyServiceResponseModel createResponseReciever = _icompany.DeleteCompanyService(id);
 
-					if (createResponseReciever.code == "001")
+					if (createResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
-					else if (createResponseReciever.code == "002")
+					else if (createResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -138,20 +131,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					CompanyServiceResponseModel createResponseReciever = _icompany.GetCompanyByIdService(id);
 
-					if (createResponseReciever.code == "001")
+					if (createResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
-					else if (createResponseReciever.code == "002")
+					else if (createResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(createResponseReciever.company, createResponseReciever.Message, createResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest("Error Occured", "003");
+						return BadRequest("Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest("Null Entity", "004");
+				return BadRequest("Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -166,7 +159,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Company>> createResponseReciever = _icompany.GetAllCompaniesService();
 				var fetchedCompanies = createResponseReciever.Result;
-				return Ok(fetchedCompanies, "Successful", "002");
+				return Ok(fetchedCompanies, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -180,7 +173,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Company>> createResponseReciever = _icompany.GetDeletedCompaniesService();
 				var fetchedCompanies = createResponseReciever.Result;
-				return Ok(fetchedCompanies, "Successful", "002");
+				return Ok(fetchedCompanies, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{

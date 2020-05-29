@@ -23,7 +23,7 @@ namespace Xend.CRM.ServiceLayer.ServiceExtentions
 		{
 			_loggerManager = loggerManager;
 		}
-		public Ticket TicketUpdater(TicketViewModel ticket)
+		public Ticket TicketResolver(TicketViewModel ticket)
 		{
 			Ticket toBeUpdatedTicket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == ticket.Id);
 			//here i will assign directly what i want to update to the model instead of creating a new instance

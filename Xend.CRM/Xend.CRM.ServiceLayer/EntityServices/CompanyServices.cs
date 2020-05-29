@@ -24,6 +24,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
         ILoggerManager _loggerManager { get; }
 		IAuditExtension _iauditExtension { get; }
 		CompanyServiceResponseModel companyModel;
+		ResponseCodes responseCode = new ResponseCodes();
 		public CompanyServices(IUnitOfWork<XendDbContext> unitOfWork, IMapper mapper, IAuditExtension iauditExtention, ILoggerManager loggerManager) : base(unitOfWork, mapper)
         {
             _loggerManager = loggerManager;
@@ -41,7 +42,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 if (createdCompany != null)
                 {
 					
-					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Already Exists", code = "001" };
+					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
 					return companyModel;
                 }
                 else
@@ -53,6 +54,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						{
 							Createdby_Userid = company.Createdby_Userid,
 							Company_Name = company.Company_Name,
+							Company_Description = company.Company_Description,
 							Status = EntityStatus.Active,
 							CreatedAt = DateTime.Now,
 							CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
@@ -63,11 +65,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.GetRepository<Company>().Add(createdCompany);
 						UnitOfWork.SaveChanges();
 
-						//Audit Logger
-						_iauditExtension.Auditlogger(createdCompany.Id, createdCompany.Createdby_Userid, "You Created a Company");
+					//Audit Logger
+			
+					_iauditExtension.Auditlogger(createdCompany.Id, createdCompany.Createdby_Userid, "You Created a Company");
 
-						companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Created Successfully", code = "002" };
-						return companyModel;
+					companyModel = new CompanyServiceResponseModel() { company = createdCompany, Message = "Entity Created Successfully", code = responseCode.Successful };
+					return companyModel;
 					//}
 					//else
 					//{
@@ -95,39 +98,41 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 Company toBeUpdatedCompany = UnitOfWork.GetRepository<Company>().Single(p => p.Id == company.Id);
                 if (toBeUpdatedCompany == null)
                 {
-					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return companyModel;
 				}
                 else
                 {
 					if(toBeUpdatedCompany.Status == EntityStatus.Active)
 					{
-						Company ifCompanyNameExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
-						if (ifCompanyNameExistsCheck == null)
-						{
-							//here i will assign directly what i want to update to the model instead of creating a new instance
-					
-							toBeUpdatedCompany.Company_Name = company.Company_Name;
-							toBeUpdatedCompany.UpdatedAt = DateTime.Now;
-							toBeUpdatedCompany.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
-							UnitOfWork.GetRepository<Company>().Update(toBeUpdatedCompany); ;
-							UnitOfWork.SaveChanges();
+						//here i will assign directly what i want to update to the model instead of creating a new instance
 
-							//Audit Logger
-							_iauditExtension.Auditlogger(toBeUpdatedCompany.Id, toBeUpdatedCompany.Createdby_Userid, "You Updated A Company");
+						toBeUpdatedCompany.Company_Name = company.Company_Name;
+						toBeUpdatedCompany.Company_Description = company.Company_Description;
+						toBeUpdatedCompany.UpdatedAt = DateTime.Now;
+						toBeUpdatedCompany.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
+						UnitOfWork.GetRepository<Company>().Update(toBeUpdatedCompany);
+						UnitOfWork.SaveChanges();
 
-							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Updated Successfully", code = "002" };
-							return companyModel;
-						}
-						else
-						{
-							companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Already Exists", code = "005" };
-							return companyModel;
-						}
+						//Audit Logger
+						_iauditExtension.Auditlogger(toBeUpdatedCompany.Id, company.Createdby_Userid, "You Updated A Company");
+
+						companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Updated Successfully", code = responseCode.Successful };
+						return companyModel;
+						//Company ifCompanyNameExistsCheck = UnitOfWork.GetRepository<Company>().Single(p => p.Company_Name == company.Company_Name);
+						//if (ifCompanyNameExistsCheck == null)
+						//{
+							
+						//}
+						//else
+						//{
+						//	companyModel = new CompanyServiceResponseModel() { company = toBeUpdatedCompany, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
+						//	return companyModel;
+						//}
 					}
 					else
 					{
-						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return companyModel;
 					}
 					
@@ -151,7 +156,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Company company = UnitOfWork.GetRepository<Company>().Single(p => p.Id == id);
                 if (company == null)
                 {
-					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+					companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return companyModel;
                 }
                 else
@@ -165,12 +170,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						_iauditExtension.Auditlogger(company.Id, company.Createdby_Userid, "You Deleted a Company");
 
-						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Deleted Successfully", code = "002" };
+						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Deleted Successfully", code = responseCode.Successful };
 						return companyModel;
 					}
 					else
 					{
-						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return companyModel;
 					}
 					
@@ -202,16 +207,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
                 {
 					if(company.Status == EntityStatus.Active)
 					{
-						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Fetched Successfully", code = "002" };
+						companyModel = new CompanyServiceResponseModel() { company = company, Message = "Entity Fetched Successfully", code = responseCode.Successful };
 						return companyModel;
 					}
 					else
 					{
-						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = "001" };
+						companyModel = new CompanyServiceResponseModel() { company = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return companyModel;
 					}
 				}
-				companyModel = new CompanyServiceResponseModel() {company = null, Message = "Entity Does Not Exist", code = "001" };
+				companyModel = new CompanyServiceResponseModel() {company = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
                 return companyModel;
             }
             catch (Exception ex)

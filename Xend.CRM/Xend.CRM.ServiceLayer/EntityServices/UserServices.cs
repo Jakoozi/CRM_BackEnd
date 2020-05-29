@@ -14,6 +14,7 @@ using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ServiceLayer.ServiceExtentions;
+using Xend.CRM.ModelLayer.ResponseModel;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -24,6 +25,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		ILoggerManager _loggerManager { get; }
 		IAuditExtension _iauditExtension { get; }
 		UserServiceResponseModel userModel;
+		ResponseCodes responseCode = new ResponseCodes();
 		public UserServices(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
@@ -40,7 +42,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email || p.Phonenumber == user.Phonenumber || p.XendCode == user.XendCode);
 				if(userToBeCreated != null)
 				{
-					userModel = new UserServiceResponseModel() {user = userToBeCreated, Message = "Entity Already Exists", code = "001" };
+					userModel = new UserServiceResponseModel() {user = userToBeCreated, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
 					return userModel;
 				}
 				else
@@ -48,10 +50,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
 					if(checkIfCompanyExists != null)
 					{
-						userToBeCreated = new User
+						userToBeCreated = new User()
 						{
 							Company_Id = user.Company_Id,
-							Team_Id = user.Team_Id,
 							User_Password = user.User_Password,
 							First_Name = user.First_Name,
 							Last_Name = user.Last_Name,
@@ -71,12 +72,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						 _iauditExtension.Auditlogger(userToBeCreated.Company_Id, userToBeCreated.Id, "You Created A User");
 
-						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = "002" };
+						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return userModel;
 					}
 					else
 					{
-						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = "005" };
+						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 						return userModel;
 					}
 					
@@ -98,7 +99,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				User toBeUpdatedUser = UnitOfWork.GetRepository<User>().Single(p => p.Id == user.Id);
 				if (toBeUpdatedUser == null)
 				{
-					userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+					userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return userModel;
 				}
 				else
@@ -125,20 +126,20 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UnitOfWork.SaveChanges();
 
 							//Audit Logger
-							_iauditExtension.Auditlogger(toBeUpdatedUser.Company_Id, toBeUpdatedUser.Id, "You Updated a User");
+							_iauditExtension.Auditlogger(toBeUpdatedUser.Company_Id, toBeUpdatedUser.Id, "You were updated");
 
-							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Entity Updated Successfully", code = "002" };
+							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Entity Updated Successfully", code = responseCode.Successful };
 							return userModel;
 						}
 						else
 						{
-							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Company Do Not Exist", code = "005" };
+							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 							return userModel;
 						}
 					}
 					else
 					{
-						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return userModel;
 					}
 					
@@ -159,7 +160,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				User user = UnitOfWork.GetRepository<User>().Single(p => p.Id == id);
 				if (user == null)
 				{
-					userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+					userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return userModel;
 				}
 				else
@@ -174,12 +175,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						_iauditExtension.Auditlogger(user.Company_Id, user.Id, "You Deleted a User");
 
 
-						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Deleted Successfully", code = "002" };
+						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Deleted Successfully", code = responseCode.Successful };
 						return userModel;
 					}
 					else
 					{
-						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return userModel;
 					}
 
@@ -229,16 +230,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if (user.Status == EntityStatus.Active)
 					{
-						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Fetched Successfully", code = "002" };
+						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Fetched Successfully", code = responseCode.Successful };
 						return userModel;
 					}
 					else
 					{
-						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return userModel;
 					}
 				}
-				userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = "001" };
+				userModel = new UserServiceResponseModel() { user = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 				return userModel;
 			}
 			catch (Exception ex)

@@ -17,6 +17,12 @@
     <Compile Remove="Migrations\20200504164543_TeamModification.Designer.cs" />
     <Compile Remove="Migrations\20200504170324_RemovedNullableFromTeamAndConpany.cs" />
     <Compile Remove="Migrations\20200504170324_RemovedNullableFromTeamAndConpany.Designer.cs" />
+    <Compile Remove="Migrations\20200525150800_AddedUserTeam.cs" />
+    <Compile Remove="Migrations\20200525150800_AddedUserTeam.Designer.cs" />
+    <Compile Remove="Migrations\20200525200116_AddedUserTeam.cs" />
+    <Compile Remove="Migrations\20200525200116_AddedUserTeam.Designer.cs" />
+    <Compile Remove="Migrations\20200525225411_AddedUserTeam.cs" />
+    <Compile Remove="Migrations\20200525225411_AddedUserTeam.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +31,7 @@
     <PackageReference Include="Microsoft.OpenApi" Version="1.1.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.10" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
+    <PackageReference Include="MimeKit" Version="2.6.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc3" />
   </ItemGroup>

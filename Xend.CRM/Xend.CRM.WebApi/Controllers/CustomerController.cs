@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xend.CRM.ModelLayer.Entities;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -16,6 +17,7 @@ namespace Xend.CRM.WebApi.Controllers
     public class CustomerController : BaseAPIController
     {
 		ICustomer _icustomer { get; }
+		ResponseCodes responseCode = new ResponseCodes();
 
 
 		public CustomerController(ICustomer icustomer)
@@ -33,24 +35,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					CustomerServiceResponseModel createMethodServiceResponseModel = _icustomer.CreateCustomerService(customer);
 
-					if (createMethodServiceResponseModel.code == "001")
+					if (createMethodServiceResponseModel.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createMethodServiceResponseModel.customer, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
-					else if (createMethodServiceResponseModel.code == "002")
+					else if (createMethodServiceResponseModel.code == responseCode.Successful)
 					{
 						return Ok(createMethodServiceResponseModel.customer, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
 					}
-					else if (createMethodServiceResponseModel.code == "005")
-					{
-						return BadRequest(createMethodServiceResponseModel.customer, createMethodServiceResponseModel.Message, createMethodServiceResponseModel.code);
-					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -107,20 +105,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					CustomerServiceResponseModel deleteResponseReciever = _icustomer.DeleteCustomerService(id);
 
-					if (deleteResponseReciever.code == "001")
+					if (deleteResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(deleteResponseReciever.customer, deleteResponseReciever.Message, deleteResponseReciever.code);
 					}
-					else if (deleteResponseReciever.code == "002")
+					else if (deleteResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(deleteResponseReciever.customer, deleteResponseReciever.Message, deleteResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -139,20 +137,20 @@ namespace Xend.CRM.WebApi.Controllers
 				{
 					CustomerServiceResponseModel getByIdResponseReciever = _icustomer.GetCustomerByIdService(id);
 
-					if (getByIdResponseReciever.code == "001")
+					if (getByIdResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(getByIdResponseReciever.customer, getByIdResponseReciever.Message, getByIdResponseReciever.code);
 					}
-					else if (getByIdResponseReciever.code == "002")
+					else if (getByIdResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(getByIdResponseReciever.customer, getByIdResponseReciever.Message, getByIdResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest("Error Occured", "003");
+						return BadRequest("Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest("Null Entity", "004");
+				return BadRequest("Null Entity", responseCode.ErrorOccured);
 			}
 			catch (Exception ex)
 			{
@@ -160,14 +158,14 @@ namespace Xend.CRM.WebApi.Controllers
 			}
 		}
 
-		[HttpGet("GetAllCustomerssService")]
+		[HttpGet("GetAllCustomersService")]
 		public IActionResult GetAllCustomers()
 		{
 			try
 			{
 				Task<IEnumerable<Customer>> ghetAllResponseReciever = _icustomer.GetAllCustomerService();
 				var fetchedCustomers = ghetAllResponseReciever.Result;
-				return Ok(fetchedCustomers, "Successful", "002");
+				return Ok(fetchedCustomers, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -181,7 +179,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Customer>> ghetAllResponseReciever = _icustomer.GetCustomerByCompanyIdService(id);
 				var fetchedCustomers = ghetAllResponseReciever.Result;
-				return Ok(fetchedCustomers, "Successful", "002");
+				return Ok(fetchedCustomers, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -195,7 +193,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Customer>> ghetAllResponseReciever = _icustomer.GetDeletedCustomerService();
 				var fetchedCustomers = ghetAllResponseReciever.Result;
-				return Ok(fetchedCustomers, "Successful", "002");
+				return Ok(fetchedCustomers, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{

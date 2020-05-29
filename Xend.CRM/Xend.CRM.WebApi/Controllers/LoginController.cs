@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.Enums;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -18,6 +19,7 @@ namespace Xend.CRM.WebApi.Controllers
 	{
 		
 		ILogin _ilogin { get; }
+		ResponseCodes responseCode = new ResponseCodes();
 
 
 		public LoginController( ILogin ilogin)
@@ -33,27 +35,23 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				if (ModelState.IsValid)
 				{
-					UserServiceResponseModel loginResponse = _ilogin.AgentLogin(user);
-					if (loginResponse.code == "001")
+					UserServiceResponseModel loginResponse = _ilogin.AdminLogin(user);
+					if (loginResponse.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(loginResponse.user, loginResponse.Message, loginResponse.code);
 					}
-					else if (loginResponse.code == "002")
+					else if (loginResponse.code == responseCode.Successful)
 					{
 						return Ok(loginResponse.user, loginResponse.Message, loginResponse.code);
 					}
-					else if (loginResponse.code == "005")
-					{
-						return BadRequest(loginResponse.user, loginResponse.Message, loginResponse.code);
-					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
 				else
 				{
-					return BadRequest(null, "Null Entity", "004");
+					return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 				}
 
 			}

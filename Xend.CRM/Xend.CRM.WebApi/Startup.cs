@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using Xend.CRM.Core.Logger;
 using Xend.CRM.Core.ServiceLayer.Bootstrapper;
 using Xend.CRM.ModelLayer.Appsetting;
+using Xend.CRM.ModelLayer.Config_Model;
 using Xend.CRM.ModelLayer.DbContexts;
 using Xend.CRM.ModelLayer.Mappings;
 using Xend.CRM.ServiceLayer.HostedServices;
@@ -36,10 +37,17 @@ namespace Xend.CRM.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             AppSetting appSetting = new AppSetting();
-            _Configuration.GetSection("AppSetting").Bind(appSetting);
+			AuthMessageSenderOptions senderOptions = new AuthMessageSenderOptions();
+			_Configuration.GetSection("AppSetting").Bind(appSetting);
             services.ConfigureCustomAppService(appSetting);
             services.IoCRootResolver(appSetting);
-            services.AddAutoMapper(
+
+			//sendgrid
+			_Configuration.GetSection("SendGrid").Bind(senderOptions);
+			services.AddSingleton(senderOptions);
+
+
+			services.AddAutoMapper(
 
                opt =>
                {

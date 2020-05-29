@@ -14,6 +14,7 @@ using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ServiceLayer.ServiceExtentions;
+using Xend.CRM.ModelLayer.ResponseModel;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -22,6 +23,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		ILoggerManager _loggerManager { get; }
 		IAuditExtension _iauditExtension { get; }
 		UserServiceResponseModel userModel;
+		ResponseCodes responseCode = new ResponseCodes();
 		public LoginService(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
@@ -29,7 +31,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		}
 
 		//this logs in an Agent user
-		public UserServiceResponseModel AgentLogin(UserViewModel user)
+		public UserServiceResponseModel AdminLogin(UserViewModel user)
 		{
 			try
 			{
@@ -38,7 +40,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
 				if(agentToBeLogged == null)
 				{
-					userModel = new UserServiceResponseModel() {user = null, code = "001", Message = "Agent Does Not Exist" };
+					userModel = new UserServiceResponseModel() {user = null, code = responseCode.ErrorOccured, Message = "Agent Does Not Exist" };
 					return userModel;
 				}
 				else
@@ -48,12 +50,19 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						_iauditExtension.Auditlogger(agentToBeLogged.Company_Id, agentToBeLogged.Id, "You Logged in");
 
-						userModel = new UserServiceResponseModel() { user = agentToBeLogged, code = "002", Message = "Login Successful" };
+						User responseUser = new User()
+						{
+							Company_Id = agentToBeLogged.Company_Id,
+							Id = agentToBeLogged.Id,
+							First_Name = agentToBeLogged.First_Name,
+							Last_Name = agentToBeLogged.Last_Name
+						};
+						userModel = new UserServiceResponseModel() { user = responseUser, code = responseCode.Successful, Message = "Login Successful" };
 						return userModel;
 					}
 					else
 					{
-						userModel = new UserServiceResponseModel() { user = agentToBeLogged, code = "005", Message = "Incorrect Password" };
+						userModel = new UserServiceResponseModel() { user = null, code = responseCode.ErrorOccured, Message = "Incorrect Password" };
 						return userModel;
 					}
 				}

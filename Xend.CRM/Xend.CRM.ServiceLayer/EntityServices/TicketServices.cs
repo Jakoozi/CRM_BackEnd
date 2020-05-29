@@ -9,6 +9,7 @@ using Xend.CRM.ModelLayer.DbContexts;
 using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -22,15 +23,18 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		ILoggerManager _loggerManager { get; }
 		IAuditExtension _iauditExtension { get; }
 		ITicketExtension _iticket { get; }
+		IEmailService _iEmailService { get; }
 		TicketServiceResponseModel ticketModel;
-		public TicketServices(IUnitOfWork<XendDbContext> unitOfWork, ITicketExtension iticket, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
+		ResponseCodes responseCode = new ResponseCodes();
+		public TicketServices(IUnitOfWork<XendDbContext> unitOfWork,IEmailService iEmailService, ITicketExtension iticket, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
 			_iauditExtension = iauditExtention;
 			_iticket = iticket;
+			_iEmailService = iEmailService;
 		}
 		//this service creates new tickets
-		public TicketServiceResponseModel CreateTicketService(TicketViewModel ticket)
+		public async Task<TicketServiceResponseModel> CreateTicketService(TicketViewModel ticket)
 		{
 			try
 			{
@@ -45,7 +49,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							Company_Id = ticket.Company_Id,
 							Customer_Id = ticket.Customer_Id,
 							Createdby_Userid = ticket.Createdby_Userid,
-							Resolvedby_Entityid = ticket.Resolvedby_Entityid,
+							//Resolvedby_Entityid = ticket.Resolvedby_Entityid,
 							Ticket_Subject = ticket.Ticket_Subject,
 							Ticket_Details = ticket.Ticket_Details,
 							Ticket_Status = Ticket_Status.New,
@@ -56,24 +60,46 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
 
 						};
-						UnitOfWork.GetRepository<Ticket>().Add(toBeCreatedTicket);
-						UnitOfWork.SaveChanges();
 
-						//Audit Logger
-						_iauditExtension.Auditlogger(toBeCreatedTicket.Company_Id, toBeCreatedTicket.Createdby_Userid, "You Created a Ticket");
+						//create email
+						Customer customer = UnitOfWork.GetRepository<Customer>().Single(p => p.Id == ticket.Customer_Id && p.Status == EntityStatus.Active);
+						string customerFullName = $"{customer.First_Name} {customer.Last_Name}";
+						var emailResponse = await _iEmailService.SendTicketCreatedEmail(customer.Email, "Ticket Created", new object[] { customerFullName, ticket.Ticket_Subject, ticket.Ticket_Details });
 
-						ticketModel = new TicketServiceResponseModel() { ticket = toBeCreatedTicket, Message = "Entity Created Successfully", code = "002" };
-						return ticketModel;
+
+
+
+
+
+						if(emailResponse != null)
+						{
+							
+							UnitOfWork.GetRepository<Ticket>().Add(toBeCreatedTicket);
+							UnitOfWork.SaveChanges();
+
+							//Audit Logger
+							_iauditExtension.Auditlogger(toBeCreatedTicket.Company_Id, toBeCreatedTicket.Createdby_Userid, "You Created a Ticket");
+
+							ticketModel = new TicketServiceResponseModel() { ticket = toBeCreatedTicket, Message = "Entity Created Successfully", code = responseCode.Successful };
+							return ticketModel;
+						
+						}
+						else
+						{
+							ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Email not sent, please try again.", code = responseCode.ErrorOccured };
+							return ticketModel;
+						}
+
 					}
 					else
 					{
-						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Ticket Creator Do Not Exist", code = "006" };
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Ticket Creator Do Not Exist", code = responseCode.ErrorOccured };
 						return ticketModel;
 					}	
 				}
 				else
 				{
-					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Company Do Not Exist", code = "005" };
+					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 					return ticketModel;
 					
 				}
@@ -86,53 +112,80 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			}
 
 		}
-	
+
 		//this service updates tickets
-		public TicketServiceResponseModel UpdateTicketService(TicketViewModel ticket)
+		public async Task<TicketServiceResponseModel> ResolveTicketService(TicketViewModel ticket)
 		{
 			try
 			{
 				Ticket toBeUpdatedTicket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == ticket.Id);
 				if (toBeUpdatedTicket == null)
 				{
-					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return ticketModel;
 				}
 				else
 				{
 					if (toBeUpdatedTicket.Status == EntityStatus.Active)
 					{
-						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == toBeUpdatedTicket.Company_Id && p.Status == EntityStatus.Active);
-						if (checkIfCompanyExists != null)
+						if(toBeUpdatedTicket.Ticket_Status != Ticket_Status.Closed)
 						{
-							User checkIfResolverIsAUser = UnitOfWork.GetRepository<User>().Single(p => p.Id == ticket.Resolvedby_Entityid && p.Status == EntityStatus.Active);
-							if (checkIfResolverIsAUser != null)
+							Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == toBeUpdatedTicket.Company_Id && p.Status == EntityStatus.Active);
+							if (checkIfCompanyExists != null)
 							{
+								User checkIfResolverIsAUser = UnitOfWork.GetRepository<User>().Single(p => p.Id == ticket.Resolvedby_Entityid && p.Status == EntityStatus.Active);
+								if (checkIfResolverIsAUser != null)
+								{
 									//Removed stuff from here
-									Ticket extensionServiceResponse = _iticket.TicketUpdater(ticket);
+									Ticket extensionServiceResponse = _iticket.TicketResolver(ticket);
 
-								//Audit Logger. This update means Resolve, that is the ticket was resolved
-								_iauditExtension.Auditlogger(extensionServiceResponse.Company_Id, extensionServiceResponse.Createdby_Userid, "You Resolved a Ticket");
+									
 
-								ticketModel = new TicketServiceResponseModel() { ticket = extensionServiceResponse, Message = "Entity Updated Successfully", code = "002" };
-								return ticketModel;
+									//create email
+									Customer customer = UnitOfWork.GetRepository<Customer>().Single(p => p.Id == toBeUpdatedTicket.Customer_Id && p.Status == EntityStatus.Active);
+									string customerFullName = $"{customer.First_Name} {customer.Last_Name}";
+									var emailResponse = await _iEmailService.SendTicketReplyEmail(customer.Email, "Ticket Resolved", new object[] { customerFullName, ticket.Ticket_Subject, ticket.Ticket_Details, ticket.Staff_Response });
+
+
+									
+									if (emailResponse != null)
+									{
+										//Audit Logger. This update means Resolve, that is the ticket was 
+										Guid idOfUserWhoResolved_Ticket = ticket.Resolvedby_Entityid.GetValueOrDefault();
+										_iauditExtension.Auditlogger(extensionServiceResponse.Company_Id, idOfUserWhoResolved_Ticket, "You Resolved a Ticket");
+
+										ticketModel = new TicketServiceResponseModel() { ticket = extensionServiceResponse, Message = "Entity Updated Successfully", code = responseCode.Successful };
+										return ticketModel;
+									}
+									else
+									{
+										ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Email not sent, please try again.", code = responseCode.ErrorOccured };
+										return ticketModel;
+									}
+								}
+								else
+								{
+									ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Resolvig User Does not Exist", code = responseCode.ErrorOccured };
+									return ticketModel;
+								}
+
 							}
 							else
 							{
-								ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Resolvig User Does not Exist", code = "006" };
+								ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 								return ticketModel;
 							}
-
 						}
 						else
 						{
-							ticketModel = new TicketServiceResponseModel() { ticket = toBeUpdatedTicket, Message = "Company Do Not Exist", code = "005" };
+							ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "This Ticket is Closed", code = responseCode.ErrorOccured };
 							return ticketModel;
 						}
+						
 					}
 					else
 					{
-						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return ticketModel;
 					}
 
@@ -153,7 +206,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Ticket ticket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == id);
 				if (ticket == null)
 				{
-					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return ticketModel;
 				}
 				else
@@ -165,14 +218,15 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.SaveChanges();
 
 						//Audit logger
-						_iauditExtension.Auditlogger(ticket.Company_Id, ticket.Createdby_Userid, "You Deleted a Ticket");
+						Guid idOfUserWhoDeleted_Ticket = ticket.Resolvedby_Entityid.GetValueOrDefault();
+						_iauditExtension.Auditlogger(ticket.Company_Id, idOfUserWhoDeleted_Ticket, "You Deleted a Ticket");
 
-						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Entity Deleted Successfully", code = "002" };
+						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Entity Deleted Successfully", code = responseCode.Successful };
 						return ticketModel;
 					}
 					else
 					{
-						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return ticketModel;
 					}
 
@@ -192,7 +246,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Ticket ticket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == id);
 				if (ticket == null)
 				{
-					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+					ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return ticketModel;
 				}
 				else
@@ -204,14 +258,15 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.SaveChanges();
 
 						//Audit logger
-						_iauditExtension.Auditlogger(ticket.Company_Id, ticket.Createdby_Userid, "You Closed a Ticket");
+						Guid idOfUserWhoClosed_Ticket = ticket.Resolvedby_Entityid.GetValueOrDefault();
+						_iauditExtension.Auditlogger(ticket.Company_Id, idOfUserWhoClosed_Ticket, "You Closed a Ticket");
 
-						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Ticket Closed Successfully", code = "002" };
+						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Ticket Closed Successfully", code = responseCode.Successful };
 						return ticketModel;
 					}
 					else
 					{
-						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return ticketModel;
 					}
 
@@ -242,16 +297,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if (ticket.Status == EntityStatus.Active)
 					{
-						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Entity Fetched Successfully", code = "002" };
+						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Entity Fetched Successfully", code = responseCode.Successful };
 						return ticketModel;
 					}
 					else
 					{
-						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return ticketModel;
 					}
 				}
-				ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = "001" };
+				ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 				return ticketModel;
 			}
 			catch (Exception ex)
@@ -266,7 +321,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			try
 			{
 				//i am meant to await that response and asign it to an ienumerable
-				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.Active);
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.Active && t.Ticket_Status != Ticket_Status.Closed);
 				return tickets;
 			}
 			catch (Exception ex)
@@ -297,7 +352,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			try
 			{
 				//i am meant to await that response and asign it to an ienumerable
-				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active);
+				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t =>t.Company_Id == id && t.Status == EntityStatus.Active && t.Ticket_Status != Ticket_Status.Closed);
 				return tickets;
 			}
 			catch (Exception ex)
