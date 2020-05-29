@@ -37,6 +37,8 @@ namespace Xend.CRM.WebApi.Extensions
             services.AddTransient<ITicket, TicketServices>();
             services.AddTransient<IUser, UserServices>();
 			services.AddTransient<ILogin, LoginService>();
+			services.AddTransient<IEmailService, EmailService>();
+			services.AddTransient<IAddUserToTeam, AddUserToTeamService>();
 
 			//my Model extension registration
 			services.AddTransient<ITicketExtension ,TicketServiceExtention>();

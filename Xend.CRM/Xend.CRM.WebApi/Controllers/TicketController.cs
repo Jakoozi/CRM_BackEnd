@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xend.CRM.ModelLayer.Entities;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -16,6 +17,7 @@ namespace Xend.CRM.WebApi.Controllers
 	public class TicketController : BaseAPIController
 	{
 		ITicket _iticket { get; }
+		ResponseCodes responseCode = new ResponseCodes();
 
 		public TicketController(ITicket iticket)
 		{
@@ -23,33 +25,29 @@ namespace Xend.CRM.WebApi.Controllers
 		}
 
 		[HttpPost("CreateTicket")]
-		public IActionResult CreateTicket([FromBody] TicketViewModel ticket)
+		public async Task<IActionResult> CreateTicket([FromBody] TicketViewModel ticket)
 		{
 			try
 			{
 				if (ModelState.IsValid)
 				{
 
-					TicketServiceResponseModel createMethodResponseReciever = _iticket.CreateTicketService(ticket);
+					TicketServiceResponseModel createMethodResponseReciever = await _iticket.CreateTicketService(ticket);
 
-					if (createMethodResponseReciever.code == "002")
+					if (createMethodResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(createMethodResponseReciever.ticket, createMethodResponseReciever.Message, createMethodResponseReciever.code);
 					}
-					else if (createMethodResponseReciever.code == "005")
-					{
-						return BadRequest(createMethodResponseReciever.ticket, createMethodResponseReciever.Message, createMethodResponseReciever.code);
-					}
-					else if (createMethodResponseReciever.code == "006")
+					else if (createMethodResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createMethodResponseReciever.ticket, createMethodResponseReciever.Message, createMethodResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -58,38 +56,30 @@ namespace Xend.CRM.WebApi.Controllers
 			}
 		}
 
-		[HttpPut("UpdateTicket")]
-		public IActionResult UpdateTicket([FromBody] TicketViewModel ticket)
+		[HttpPut("ResolveTicket")]
+		public async Task<IActionResult> ResolveTicket([FromBody] TicketViewModel ticket)
 		{
 			try
 			{
 				if (ModelState.IsValid)
 				{
 
-					TicketServiceResponseModel updateMethodServiceResponseModel = _iticket.UpdateTicketService(ticket);
+					TicketServiceResponseModel updateMethodServiceResponseModel = await _iticket.ResolveTicketService(ticket);
 
-					if (updateMethodServiceResponseModel.code == "001")
+					if (updateMethodServiceResponseModel.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(updateMethodServiceResponseModel.ticket, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
 					}
-					else if (updateMethodServiceResponseModel.code == "002")
+					else if (updateMethodServiceResponseModel.code == responseCode.Successful)
 					{
 						return Ok(updateMethodServiceResponseModel.ticket, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
 					}
-					else if (updateMethodServiceResponseModel.code == "005")
-					{
-						return BadRequest(updateMethodServiceResponseModel.ticket, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
-					}
-					else if (updateMethodServiceResponseModel.code == "006")
-					{
-						return BadRequest(updateMethodServiceResponseModel.ticket, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
-					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -108,20 +98,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					TicketServiceResponseModel deleteResponseReciever = _iticket.DeleteTicketService(id);
 
-					if (deleteResponseReciever.code == "001")
+					if (deleteResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(deleteResponseReciever.ticket, deleteResponseReciever.Message, deleteResponseReciever.code);
 					}
-					else if (deleteResponseReciever.code == "002")
+					else if (deleteResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(deleteResponseReciever.ticket, deleteResponseReciever.Message, deleteResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -139,20 +129,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					TicketServiceResponseModel closeResponseReciever = _iticket.CloseTicketService(id);
 
-					if (closeResponseReciever.code == "001")
+					if (closeResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
 					}
-					else if (closeResponseReciever.code == "002")
+					else if (closeResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -170,20 +160,20 @@ namespace Xend.CRM.WebApi.Controllers
 				{
 					TicketServiceResponseModel getByIdResponseReciever = _iticket.GetTicketByIdService(id);
 
-					if (getByIdResponseReciever.code == "001")
+					if (getByIdResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(getByIdResponseReciever.ticket, getByIdResponseReciever.Message, getByIdResponseReciever.code);
 					}
-					else if (getByIdResponseReciever.code == "002")
+					else if (getByIdResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(getByIdResponseReciever.ticket, getByIdResponseReciever.Message, getByIdResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest("Error Occured", "003");
+						return BadRequest("Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest("Null Entity", "004");
+				return BadRequest("Null Entity", responseCode.ErrorOccured);
 			}
 			catch (Exception ex)
 			{
@@ -197,7 +187,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetAllTicketsService();
 				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
+				return Ok(fetchedTckets, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -212,7 +202,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetDeletedTicketsService();
 				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
+				return Ok(fetchedTckets, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -226,7 +216,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByCompany_IdService(id);
 				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
+				return Ok(fetchedTckets, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -240,7 +230,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByCustomer_IdService(id);
 				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
+				return Ok(fetchedTckets, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -254,7 +244,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByCreated_UserIdService(id);
 				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
+				return Ok(fetchedTckets, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -269,7 +259,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Ticket>> ghetAllResponseReciever = _iticket.GetTicketByResolved_UserIdService(id);
 				var fetchedTckets = ghetAllResponseReciever.Result;
-				return Ok(fetchedTckets, "Successful", "002");
+				return Ok(fetchedTckets, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{

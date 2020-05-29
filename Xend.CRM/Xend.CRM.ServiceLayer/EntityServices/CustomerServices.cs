@@ -9,6 +9,7 @@ using Xend.CRM.ModelLayer.DbContexts;
 using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -21,6 +22,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		ILoggerManager _loggerManager { get; }
 		IAuditExtension _iauditExtension { get; }
 		CustomerServiceResponseModel customerModel;
+		ResponseCodes responseCode = new ResponseCodes();
 		public CustomerServices(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
@@ -37,7 +39,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Customer customerToBeCreated = UnitOfWork.GetRepository<Customer>().Single(p => p.Email == customer.Email || p.Phonenumber == customer.Phonenumber || p.XendCode == customer.XendCode);
 				if (customerToBeCreated != null)
 				{
-					customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Already Exists", code = "001" };
+					customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
 					return customerModel;
 				}
 				else
@@ -66,12 +68,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						_iauditExtension.Auditlogger(customerToBeCreated.Company_Id, customerToBeCreated.Createdby_Userid, "You Created a Customer");
 
-						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Created Successfully", code = "002" };
+						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return customerModel;
 					}
 					else
 					{
-						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Company Do Not Exist", code = "005" };
+						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 						return customerModel;
 					}
 
@@ -93,11 +95,11 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Customer toBeUpdatedCustomer = UnitOfWork.GetRepository<Customer>().Single(p => p.Id == customer.Id);
 				if (toBeUpdatedCustomer == null)
 				{
-					customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = "001" };
+					customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return customerModel;
 				}
 				else
-				{
+				 {
 					if (toBeUpdatedCustomer.Status == EntityStatus.Active)
 					{
 						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == customer.Company_Id && p.Status == EntityStatus.Active);
@@ -118,19 +120,20 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UnitOfWork.SaveChanges();
 
 							//Audit Logger
-							_iauditExtension.Auditlogger(toBeUpdatedCustomer.Company_Id, toBeUpdatedCustomer.Createdby_Userid, "You Udated a Customer");
-							customerModel = new CustomerServiceResponseModel() { customer = toBeUpdatedCustomer, Message = "Entity Updated Successfully", code = "002" };
+							Guid idOfUserWhoUpdatedCustomer = customer.Updatedby_Userid.GetValueOrDefault();
+							_iauditExtension.Auditlogger(toBeUpdatedCustomer.Company_Id, idOfUserWhoUpdatedCustomer, "You Udated a Customer");
+							customerModel = new CustomerServiceResponseModel() { customer = toBeUpdatedCustomer, Message = "Entity Updated Successfully", code = responseCode.Successful };
 							return customerModel;
 						}
 						else
 						{
-							customerModel = new CustomerServiceResponseModel() { customer = toBeUpdatedCustomer, Message = "Company Do Not Exist", code = "005" };
+							customerModel = new CustomerServiceResponseModel() { customer = toBeUpdatedCustomer, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 							return customerModel;
 						}
 					}
 					else
 					{
-						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = "001" };
+						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return customerModel;
 					}
 
@@ -141,7 +144,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				_loggerManager.LogError(ex.Message);
 				throw;
 			}
-		}
+		   }
 		//this service deletes customers by there id
 		public CustomerServiceResponseModel DeleteCustomerService(Guid id)
 		{
@@ -151,7 +154,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Customer customer = UnitOfWork.GetRepository<Customer>().Single(p => p.Id == id);
 				if (customer == null)
 				{
-					customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = "001" };
+					customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return customerModel;
 				}
 				else
@@ -165,12 +168,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						_iauditExtension.Auditlogger(customer.Company_Id, customer.Createdby_Userid, "You Deleted a Customer");
 
-						customerModel = new CustomerServiceResponseModel() { customer = customer, Message = "Entity Deleted Successfully", code = "002" };
+						customerModel = new CustomerServiceResponseModel() { customer = customer, Message = "Entity Deleted Successfully", code = responseCode.Successful };
 						return customerModel;
 					}
 					else
 					{
-						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = "001" };
+						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return customerModel;
 					}
 
@@ -202,16 +205,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if (customer.Status == EntityStatus.Active)
 					{
-						customerModel = new CustomerServiceResponseModel() { customer = customer, Message = "Entity Fetched Successfully", code = "002" };
+						customerModel = new CustomerServiceResponseModel() { customer = customer, Message = "Entity Fetched Successfully", code = responseCode.Successful };
 						return customerModel;
 					}
 					else
 					{
-						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = "001" };
+						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return customerModel;
 					}
 				}
-				customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = "001" };
+				customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 				return customerModel;
 			}
 			catch (Exception ex)

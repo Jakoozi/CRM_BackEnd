@@ -9,6 +9,7 @@ using Xend.CRM.ModelLayer.DbContexts;
 using Xend.CRM.ModelLayer.Entities;
 using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
@@ -21,9 +22,11 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		ILoggerManager _loggerManager { get; }
 		IAuditExtension _iauditExtension { get; }
 		TeamServiceResponseModel teamModel;
+		ResponseCodes responseCode = new ResponseCodes();
 		public TeamServices(IUnitOfWork<XendDbContext> unitOfWork, IAuditExtension iauditExtention, IMapper mapper, ILoggerManager loggerManager) : base(unitOfWork, mapper)
 		{
 			_loggerManager = loggerManager;
+			_iauditExtension = iauditExtention;
 		}
 		//this service creates new teams
 		public TeamServiceResponseModel CreateTeamService(TeamViewModel team)
@@ -43,6 +46,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							Company_Id = team.Company_Id,
 							Createdby_Userid = team.Createdby_Userid,
 							Team_Name = team.Team_Name,
+							Team_Description = team.Team_Description,
 							Status = EntityStatus.Active,
 							CreatedAt = DateTime.Now,
 							CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
@@ -54,21 +58,21 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.SaveChanges();
 
 						//Audit Logger
-						//_iauditExtension.Auditlogger(tobeCreatedTeam.Company_Id, tobeCreatedTeam.Createdby_Userid, "You Created a team");
+						_iauditExtension.Auditlogger(tobeCreatedTeam.Company_Id, tobeCreatedTeam.Createdby_Userid, "You Created a team");
 
-						teamModel = new TeamServiceResponseModel() { team = tobeCreatedTeam, Message = "Entity Created Successfully", code = "002" };
+						teamModel = new TeamServiceResponseModel() { team = tobeCreatedTeam, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return teamModel;
 					}
 					else
 					{
-						teamModel = new TeamServiceResponseModel() { team = tobeCreatedTeam, Message = "Entity Already Exists", code = "001" };
+						teamModel = new TeamServiceResponseModel() { team = tobeCreatedTeam, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
 						return teamModel;
 					}
 					
 				}
 				else
 				{
-					teamModel = new TeamServiceResponseModel() { team = null, Message = "The Company Does Not Exist", code = "005" };
+					teamModel = new TeamServiceResponseModel() { team = null, Message = "The Company Does Not Exist", code = responseCode.ErrorOccured };
 					return teamModel;
 
 
@@ -92,7 +96,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Team toBeUpdatedTeam = UnitOfWork.GetRepository<Team>().Single(p => p.Id == team.Id);
 				if (toBeUpdatedTeam == null)
 				{
-					teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = "001" };
+					teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return teamModel;
 				}
 				else
@@ -100,7 +104,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 					if(toBeUpdatedTeam.Status == EntityStatus.Active)
 					{
 						//here i will assign directly what i want to update to the model instead of creating a new instance
-						
+						toBeUpdatedTeam.Company_Id = team.Company_Id;
+						toBeUpdatedTeam.Team_Description = team.Team_Description;
 						toBeUpdatedTeam.Team_Name = team.Team_Name;
 						toBeUpdatedTeam.UpdatedAt = DateTime.Now;
 						toBeUpdatedTeam.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
@@ -108,14 +113,14 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.SaveChanges();
 
 						//Audit Logger
-						//_iauditExtension.Auditlogger(toBeUpdatedTeam.Company_Id, toBeUpdatedTeam.Createdby_Userid, "You Updated a team");
+						_iauditExtension.Auditlogger(toBeUpdatedTeam.Company_Id, team.Createdby_Userid, "You Updated a team");
 
-						teamModel = new TeamServiceResponseModel() { team = toBeUpdatedTeam, Message = "Entity Updated Successfully", code = "002" };
+						teamModel = new TeamServiceResponseModel() { team = toBeUpdatedTeam, Message = "Entity Updated Successfully", code = responseCode.Successful };
 						return teamModel;
 					}
 					else
 					{
-						teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = "001" };
+						teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return teamModel;
 					}
 					
@@ -137,7 +142,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				Team team = UnitOfWork.GetRepository<Team>().Single(p => p.Id == id);
 				if (team == null)
 				{
-					teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = "001" };
+					teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 					return teamModel;
 				}
 				else
@@ -151,12 +156,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						//_iauditExtension.Auditlogger(team.Company_Id, team.Createdby_Userid, "You Deleted a team");
 
-						teamModel = new TeamServiceResponseModel() { team = team, Message = "Entity Deleted Successfully", code = "002" };
+						teamModel = new TeamServiceResponseModel() { team = team, Message = "Entity Deleted Successfully", code = responseCode.Successful };
 						return teamModel;
 					}
 					else
 					{
-						teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = "001" };
+						teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return teamModel;
 					}
 
@@ -187,16 +192,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if (team.Status == EntityStatus.Active)
 					{
-						teamModel = new TeamServiceResponseModel() { team = team, Message = "Entity Fetched Successfully", code = "002" };
+						teamModel = new TeamServiceResponseModel() { team = team, Message = "Entity Fetched Successfully", code = responseCode.Successful };
 						return teamModel;
 					}
 					else
 					{
-						teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = "001" };
+						teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 						return teamModel;
 					}
 				}
-				teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = "001" };
+				teamModel = new TeamServiceResponseModel() { team = null, Message = "Entity Does Not Exist", code = responseCode.ErrorOccured };
 				return teamModel;
 			}
 			catch (Exception ex)

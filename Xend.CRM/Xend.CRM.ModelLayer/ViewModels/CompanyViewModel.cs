@@ -11,16 +11,7 @@ namespace Xend.CRM.ModelLayer.ViewModels
     public class CompanyViewModel : BASE_ENTITY
     {
 		public Guid Createdby_Userid { get; set; }
-		[Required]
         public string Company_Name { get; set; }
-
-
-		//this is the datatable relationship
-		[ForeignKey("Createdby_Userid")]
-		public virtual User CreatedUser { get; set; }
-		//public static implicit operator CompanyViewModel(Company v)
-		//{
-		//	throw new NotImplementedException();
-		//}
+		public string Company_Description { get; set; }
 	}
 }

@@ -8,6 +8,6 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 {
 	public interface ITicketExtension
 	{
-		Ticket TicketUpdater(TicketViewModel ticket);
+		Ticket TicketResolver(TicketViewModel ticket);
 	}
 }

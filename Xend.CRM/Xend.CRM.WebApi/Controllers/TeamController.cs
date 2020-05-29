@@ -5,18 +5,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xend.CRM.ModelLayer.Entities;
+using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 
 namespace Xend.CRM.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Team")]
     [ApiController]
     public class TeamController : BaseAPIController
     {
 		ITeam _iteam { get; }
-
+		ResponseCodes responseCode = new ResponseCodes();
 		public TeamController(ITeam iteam)
 		{
 			_iteam = iteam;
@@ -32,24 +33,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					TeamServiceResponseModel createMethodResponseReciever = _iteam.CreateTeamService(team);
 
-					if (createMethodResponseReciever.code == "001")
+					if (createMethodResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(createMethodResponseReciever.team, createMethodResponseReciever.Message, createMethodResponseReciever.code);
 					}
-					else if (createMethodResponseReciever.code == "002")
+					else if (createMethodResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(createMethodResponseReciever.team, createMethodResponseReciever.Message, createMethodResponseReciever.code);
 					}
-					else if (createMethodResponseReciever.code == "005")
-					{
-						return BadRequest(createMethodResponseReciever.team, createMethodResponseReciever.Message, createMethodResponseReciever.code);
-					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -68,20 +65,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					TeamServiceResponseModel updateMethodServiceResponseModel = _iteam.UpdateTeamService(team);
 
-					if (updateMethodServiceResponseModel.code == "001")
+					if (updateMethodServiceResponseModel.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(updateMethodServiceResponseModel.team, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
 					}
-					else if (updateMethodServiceResponseModel.code == "002")
+					else if (updateMethodServiceResponseModel.code == responseCode.Successful)
 					{
 						return Ok(updateMethodServiceResponseModel.team, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -100,20 +97,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					TeamServiceResponseModel deleteResponseReciever = _iteam.DeleteTeamService(id);
 
-					if (deleteResponseReciever.code == "001")
+					if (deleteResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(deleteResponseReciever.team, deleteResponseReciever.Message, deleteResponseReciever.code);
 					}
-					else if (deleteResponseReciever.code == "002")
+					else if (deleteResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(deleteResponseReciever.team, deleteResponseReciever.Message, deleteResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest(null, "Error Occured", "003");
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest(null, "Null Entity", "004");
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -132,20 +129,20 @@ namespace Xend.CRM.WebApi.Controllers
 
 					TeamServiceResponseModel getAllResponseReciever = _iteam.GetTeamByIdService(id);
 
-					if (getAllResponseReciever.code == "001")
+					if (getAllResponseReciever.code == responseCode.ErrorOccured)
 					{
 						return BadRequest(getAllResponseReciever.team, getAllResponseReciever.Message, getAllResponseReciever.code);
 					}
-					else if (getAllResponseReciever.code == "002")
+					else if (getAllResponseReciever.code == responseCode.Successful)
 					{
 						return Ok(getAllResponseReciever.team, getAllResponseReciever.Message, getAllResponseReciever.code);
 					}
 					else
 					{
-						return BadRequest("Error Occured", "003");
+						return BadRequest("Error Occured", responseCode.ErrorOccured);
 					}
 				}
-				return BadRequest("Null Entity", "004");
+				return BadRequest("Null Entity", responseCode.ErrorOccured);
 
 			}
 			catch (Exception ex)
@@ -161,7 +158,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Team>> getAllResponseReciever = _iteam.GetAllTeamsService();
 				var fetchedTeams = getAllResponseReciever.Result;
-				return Ok(fetchedTeams, "Successful", "002");
+				return Ok(fetchedTeams, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -175,7 +172,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Team>> getAllResponseReciever = _iteam.GetTeamsByCompanyIdService(id);
 				var fetchedTeams = getAllResponseReciever.Result;
-				return Ok(fetchedTeams, "Successful", "002");
+				return Ok(fetchedTeams, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
@@ -189,7 +186,7 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				Task<IEnumerable<Team>> getAllResponseReciever = _iteam.GetDeletedTeamsService();
 				var fetchedTeams = getAllResponseReciever.Result;
-				return Ok(fetchedTeams, "Successful", "002");
+				return Ok(fetchedTeams, "Successful", responseCode.Successful);
 			}
 			catch (Exception ex)
 			{
