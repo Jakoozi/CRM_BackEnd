@@ -31,7 +31,7 @@ namespace Xend.CRM.ServiceLayer.ServiceExtentions
 			toBeUpdatedTicket.Resolvedby_Entityid = ticket.Resolvedby_Entityid;
 			toBeUpdatedTicket.Staff_Response = ticket.Staff_Response;
 			//toBeUpdatedTicket.Resolvedby_Teamid = ticket.Resolvedby_Teamid;
-			toBeUpdatedTicket.Ticket_Status = ticket.Ticket_Status;
+			toBeUpdatedTicket.Ticket_Status = Ticket_Status.Resolved;
 			toBeUpdatedTicket.Status = EntityStatus.Active;
 			toBeUpdatedTicket.UpdatedAt = DateTime.Now;
 			toBeUpdatedTicket.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
