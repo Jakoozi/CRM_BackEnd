@@ -48,7 +48,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 					if(agentToBeLogged.User_Password == user.User_Password)
 					{
 						//Audit Logger
-						_iauditExtension.Auditlogger(agentToBeLogged.Company_Id, agentToBeLogged.Id, "You Logged in");
+						var converte_Company_id = agentToBeLogged.Company_Id.GetValueOrDefault();
+						_iauditExtension.Auditlogger(converte_Company_id, agentToBeLogged.Id, "You Logged in");
 
 						User responseUser = new User()
 						{

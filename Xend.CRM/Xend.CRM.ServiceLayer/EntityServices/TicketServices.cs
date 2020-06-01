@@ -67,10 +67,6 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						var emailResponse = await _iEmailService.SendTicketCreatedEmail(customer.Email, "Ticket Created", new object[] { customerFullName, ticket.Ticket_Subject, ticket.Ticket_Details });
 
 
-
-
-
-
 						if(emailResponse != null)
 						{
 							
@@ -137,26 +133,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 								if (checkIfResolverIsAUser != null)
 								{
 									//Removed stuff from here
-									Ticket extensionServiceResponse = _iticket.TicketResolver(ticket);
-
-									
-
-									//create email
-									Customer customer = UnitOfWork.GetRepository<Customer>().Single(p => p.Id == toBeUpdatedTicket.Customer_Id && p.Status == EntityStatus.Active);
-									string customerFullName = $"{customer.First_Name} {customer.Last_Name}";
-									var emailResponse = await _iEmailService.SendTicketReplyEmail(customer.Email, "Ticket Resolved", new object[] { customerFullName, ticket.Ticket_Subject, ticket.Ticket_Details, ticket.Staff_Response });
-
-
-									
-									if (emailResponse != null)
+									Ticket extensionServiceResponse = await _iticket.TicketResolver(ticket);
+									if(extensionServiceResponse != null)
 									{
-										//Audit Logger. This update means Resolve, that is the ticket was 
-										Guid idOfUserWhoResolved_Ticket = ticket.Resolvedby_Entityid.GetValueOrDefault();
-										_iauditExtension.Auditlogger(extensionServiceResponse.Company_Id, idOfUserWhoResolved_Ticket, "You Resolved a Ticket");
-
-										ticketModel = new TicketServiceResponseModel() { ticket = extensionServiceResponse, Message = "Entity Updated Successfully", code = responseCode.Successful };
+										ticketModel = new TicketServiceResponseModel() { ticket = extensionServiceResponse, Message = "Staff Response Sent Successfully", code = responseCode.Successful };
 										return ticketModel;
-									}
+									}			
 									else
 									{
 										ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Email not sent, please try again.", code = responseCode.ErrorOccured };

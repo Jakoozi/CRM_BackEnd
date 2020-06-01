@@ -109,7 +109,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						toBeUpdatedTeam.Team_Name = team.Team_Name;
 						toBeUpdatedTeam.UpdatedAt = DateTime.Now;
 						toBeUpdatedTeam.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
-						UnitOfWork.GetRepository<Team>().Update(toBeUpdatedTeam); ;
+						UnitOfWork.GetRepository<Team>().Update(toBeUpdatedTeam);
 						UnitOfWork.SaveChanges();
 
 						//Audit Logger
