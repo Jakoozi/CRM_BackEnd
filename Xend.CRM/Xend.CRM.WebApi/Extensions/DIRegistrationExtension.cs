@@ -2,6 +2,7 @@
 using Xend.CRM.Core.DataAccessLayer.Repository;
 using Xend.CRM.Core.Logger;
 using Xend.CRM.Core.MessageBroker;
+using Xend.CRM.Core.ServiceLayer;
 using Xend.CRM.Core.ServiceLayer.Bootstrapper;
 using Xend.CRM.DataAccessLayer.Repository;
 using Xend.CRM.ModelLayer.Appsetting;
@@ -11,6 +12,7 @@ using Xend.CRM.ServiceLayer.EntityServices;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 using Xend.CRM.ServiceLayer.Logger;
 using Xend.CRM.ServiceLayer.MessageBroker;
+using Xend.CRM.ServiceLayer.PaginationService;
 using Xend.CRM.ServiceLayer.ServiceExtentions;
 
 namespace Xend.CRM.WebApi.Extensions
@@ -28,6 +30,7 @@ namespace Xend.CRM.WebApi.Extensions
             services.AddTransient<ILoggerManager, LoggerManager>();
             services.AddTransient<IMessageSender, MessageSender>();
             services.AddTransient<IUnitOfWork<XendDbContext>, UnitOfWork<XendDbContext>>();
+            services.AddTransient<IPaginatedResultService, PaginatedResultService>();
 
             //this are my  model services
             services.AddTransient<IAuditRail, AuditRailServices>();

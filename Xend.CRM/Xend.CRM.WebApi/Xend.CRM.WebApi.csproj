@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\hercules\Desktop\Net\CRM\Xend.CRM\Xend.CRM.WebApi\Xend.CRM.WebApi.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\dell\Documents\xend.crm\Xend.CRM\Xend.CRM.WebApi\Xend.CRM.WebApi.xml</DocumentationFile>
+    <WarningLevel>3</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
