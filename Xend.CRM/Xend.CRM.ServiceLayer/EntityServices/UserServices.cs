@@ -47,9 +47,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
 				else
 				{
-					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
-					if(checkIfCompanyExists != null)
-					{
+					//Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
+					//if(checkIfCompanyExists != null)
+					//{
 						userToBeCreated = new User()
 						{
 							Company_Id = user.Company_Id,
@@ -75,12 +75,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
 						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return userModel;
-					}
-					else
-					{
-						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
-						return userModel;
-					}
+					//}
+					//else
+					//{
+					//	userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
+					//	return userModel;
+					//}
 					
 				}
 			}
