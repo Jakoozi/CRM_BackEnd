@@ -57,7 +57,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							Id = agentToBeLogged.Id,
 							First_Name = agentToBeLogged.First_Name,
 							Last_Name = agentToBeLogged.Last_Name,
-							User_Role = User_Role.Agent
+							User_Role = agentToBeLogged.User_Role
 						};
 						userModel = new UserServiceResponseModel() { user = responseUser, code = responseCode.Successful, Message = "Login Successful" };
 						return userModel;
