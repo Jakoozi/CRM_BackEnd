@@ -15,6 +15,7 @@ using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ServiceLayer.ServiceExtentions;
 using Xend.CRM.ModelLayer.ResponseModel;
+using Xend.CRM.ModelLayer.ViewModels.Post_View_Models;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -31,7 +32,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		}
 
 		//this logs in an Agent user
-		public UserServiceResponseModel AdminLogin(UserViewModel user)
+		public UserServiceResponseModel AdminLogin(LoginViewModel user)
 		{
 			try
 			{

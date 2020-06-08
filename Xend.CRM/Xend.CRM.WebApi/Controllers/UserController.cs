@@ -9,6 +9,7 @@ using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
+using Xend.CRM.ModelLayer.ViewModels.Put_View_Models;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 
 namespace Xend.CRM.WebApi.Controllers
@@ -59,7 +60,7 @@ namespace Xend.CRM.WebApi.Controllers
 		}
 
 		[HttpPut("UpdateUser")]
-		public IActionResult UpdateUser([FromBody] UserViewModel user)
+		public IActionResult UpdateUser([FromBody] UpdateUserViewModel user)
 		{
 			try
 			{

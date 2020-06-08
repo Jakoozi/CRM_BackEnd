@@ -9,6 +9,7 @@ using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ResponseModel;
 using Xend.CRM.ModelLayer.ResponseModel.ServiceModels;
 using Xend.CRM.ModelLayer.ViewModels;
+using Xend.CRM.ModelLayer.ViewModels.Post_View_Models;
 using Xend.CRM.ServiceLayer.EntityServices.Interface;
 
 namespace Xend.CRM.WebApi.Controllers
@@ -29,7 +30,7 @@ namespace Xend.CRM.WebApi.Controllers
 		}
 
 		[HttpPost("AgentLogin")]
-		public IActionResult AgentLogin([FromBody] UserViewModel user)
+		public IActionResult AgentLogin([FromBody] LoginViewModel user)
 		{
 			try
 			{

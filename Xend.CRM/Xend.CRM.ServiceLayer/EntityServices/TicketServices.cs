@@ -76,7 +76,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							//Audit Logger
 							_iauditExtension.Auditlogger(toBeCreatedTicket.Company_Id, toBeCreatedTicket.Createdby_Userid, "You Created a Ticket");
 
-							ticketModel = new TicketServiceResponseModel() { ticket = toBeCreatedTicket, Message = "Entity Created Successfully", code = responseCode.Successful };
+							ticketModel = new TicketServiceResponseModel() { ticket = toBeCreatedTicket, Message = "Ticket Created Successfully", code = responseCode.Successful };
 							return ticketModel;
 						
 						}

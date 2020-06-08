@@ -15,6 +15,7 @@ using Xend.CRM.ModelLayer.Enums;
 using Xend.CRM.ModelLayer.ModelExtensions;
 using Xend.CRM.ServiceLayer.ServiceExtentions;
 using Xend.CRM.ModelLayer.ResponseModel;
+using Xend.CRM.ModelLayer.ViewModels.Put_View_Models;
 
 namespace Xend.CRM.ServiceLayer.EntityServices
 {
@@ -42,7 +43,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email || p.Phonenumber == user.Phonenumber || p.XendCode == user.XendCode);
 				if(userToBeCreated != null)
 				{
-					userModel = new UserServiceResponseModel() {user = userToBeCreated, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
+					userModel = new UserServiceResponseModel() {user = null, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
 					return userModel;
 				}
 				else
@@ -73,7 +74,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						var converte_Company_id = userToBeCreated.Company_Id.GetValueOrDefault();
 						_iauditExtension.Auditlogger(converte_Company_id, userToBeCreated.Id, "You Created A User");
 
-						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
+						userModel = new UserServiceResponseModel() { user = null, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return userModel;
 					//}
 					//else
@@ -92,7 +93,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		}
 
 		//this service updates user
-		public UserServiceResponseModel UpdateUserService(UserViewModel user)
+		public UserServiceResponseModel UpdateUserService(UpdateUserViewModel user)
 		{
 
 			try
@@ -107,12 +108,12 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				{
 					if(toBeUpdatedUser.Status == EntityStatus.Active)
 					{
-						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == toBeUpdatedUser.Company_Id && p.Status == EntityStatus.Active);
+						Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
 						if (checkIfCompanyExists != null)
 						{
 
 							//here i will assign directly what i want to update to the model instead of creating a new instance
-							//toBeUpdatedUser.Company_Id = user.Company_Id;
+							toBeUpdatedUser.Company_Id = user.Company_Id;
 							toBeUpdatedUser.User_Password = user.User_Password;
 							toBeUpdatedUser.First_Name = user.First_Name;
 							toBeUpdatedUser.Last_Name = user.Last_Name;
@@ -123,19 +124,19 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							toBeUpdatedUser.Status = EntityStatus.Active;
 							toBeUpdatedUser.UpdatedAt = DateTime.Now;
 							toBeUpdatedUser.UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp();
-							UnitOfWork.GetRepository<User>().Update(toBeUpdatedUser); ;
+							UnitOfWork.GetRepository<User>().Update(toBeUpdatedUser);
 							UnitOfWork.SaveChanges();
 
 							//Audit Logger
 							var converte_Company_id = toBeUpdatedUser.Company_Id.GetValueOrDefault();
 							_iauditExtension.Auditlogger(converte_Company_id, toBeUpdatedUser.Id, "You were updated");
 
-							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Entity Updated Successfully", code = responseCode.Successful };
+							userModel = new UserServiceResponseModel() { user = null, Message = "Entity Updated Successfully", code = responseCode.Successful };
 							return userModel;
 						}
 						else
 						{
-							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
+							userModel = new UserServiceResponseModel() { user = null, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 							return userModel;
 						}
 					}

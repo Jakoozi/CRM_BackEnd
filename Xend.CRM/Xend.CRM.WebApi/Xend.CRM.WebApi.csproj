@@ -13,19 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20200504164543_TeamModification.cs" />
-    <Compile Remove="Migrations\20200504164543_TeamModification.Designer.cs" />
-    <Compile Remove="Migrations\20200504170324_RemovedNullableFromTeamAndConpany.cs" />
-    <Compile Remove="Migrations\20200504170324_RemovedNullableFromTeamAndConpany.Designer.cs" />
-    <Compile Remove="Migrations\20200525150800_AddedUserTeam.cs" />
-    <Compile Remove="Migrations\20200525150800_AddedUserTeam.Designer.cs" />
-    <Compile Remove="Migrations\20200525200116_AddedUserTeam.cs" />
-    <Compile Remove="Migrations\20200525200116_AddedUserTeam.Designer.cs" />
-    <Compile Remove="Migrations\20200525225411_AddedUserTeam.cs" />
-    <Compile Remove="Migrations\20200525225411_AddedUserTeam.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.1.4" />
