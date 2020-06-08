@@ -6,6 +6,7 @@ using MassTransit.RabbitMqTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -108,20 +109,21 @@ namespace Xend.CRM.WebApi
             //services.AddSingleton<IBus>(provider => provider.GetRequiredService<IBusControl>());
             //services.AddHostedService<BusService>();
 
+
             services.AddCors(options =>
             {
-                options.AddPolicy(
-                    "CorsPolicy",
-                    builder =>
-                        builder
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials()
-                        .WithOrigins(_Configuration["SocketConfig:Port"])
-                );
+                options.AddPolicy("AllowAllOrigins",
+                builder => {
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
             });
 
 
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAllOrigins"));
+                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAllOrigins"));
+            });
 
         }
 
@@ -142,7 +144,7 @@ namespace Xend.CRM.WebApi
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Xend CRM Api V1");
             });
-            app.UseCors("CorsPolicy");
+            app.UseCors("AllowAllOrigins");
             app.UseMvc();
             lifetime.ApplicationStarted.Register(() => startManager.Start());
             lifetime.ApplicationStopping.Register(() => stopManager.Stop());
