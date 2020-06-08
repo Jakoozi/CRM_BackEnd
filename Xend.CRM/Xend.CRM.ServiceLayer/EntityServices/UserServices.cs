@@ -47,9 +47,9 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
 				else
 				{
-					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
-					if(checkIfCompanyExists != null)
-					{
+					//Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
+					//if(checkIfCompanyExists != null)
+					//{
 						userToBeCreated = new User()
 						{
 							Company_Id = user.Company_Id,
@@ -70,16 +70,17 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.SaveChanges();
 
 						//Audit Logger
-						 _iauditExtension.Auditlogger(userToBeCreated.Company_Id, userToBeCreated.Id, "You Created A User");
+						var converte_Company_id = userToBeCreated.Company_Id.GetValueOrDefault();
+						_iauditExtension.Auditlogger(converte_Company_id, userToBeCreated.Id, "You Created A User");
 
 						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return userModel;
-					}
-					else
-					{
-						userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
-						return userModel;
-					}
+					//}
+					//else
+					//{
+					//	userModel = new UserServiceResponseModel() { user = userToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
+					//	return userModel;
+					//}
 					
 				}
 			}
@@ -126,7 +127,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							UnitOfWork.SaveChanges();
 
 							//Audit Logger
-							_iauditExtension.Auditlogger(toBeUpdatedUser.Company_Id, toBeUpdatedUser.Id, "You were updated");
+							var converte_Company_id = toBeUpdatedUser.Company_Id.GetValueOrDefault();
+							_iauditExtension.Auditlogger(converte_Company_id, toBeUpdatedUser.Id, "You were updated");
 
 							userModel = new UserServiceResponseModel() { user = toBeUpdatedUser, Message = "Entity Updated Successfully", code = responseCode.Successful };
 							return userModel;
@@ -172,7 +174,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						UnitOfWork.SaveChanges();
 
 						//Audit Logger
-						_iauditExtension.Auditlogger(user.Company_Id, user.Id, "You Deleted a User");
+						var converte_Company_id = user.Company_Id.GetValueOrDefault();
+						_iauditExtension.Auditlogger(converte_Company_id, user.Id, "You Deleted a User");
 
 
 						userModel = new UserServiceResponseModel() { user = user, Message = "Entity Deleted Successfully", code = responseCode.Successful };

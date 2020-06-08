@@ -53,11 +53,16 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							else
 							{
 								//adding the user to the team
+								var UserName = $"{checkIfUserExists.First_Name} {checkIfUserExists.Last_Name}";
+								//Add Userand Company Names
 								UserTeam addUserToTeam = new UserTeam()
 								{
 									Company_Id = userTeam.Company_Id,
 									Team_Id = userTeam.Team_Id,
 									User_Id = userTeam.User_Id,
+									Company_Name = checkIfCompanyExists.Company_Name,
+									Team_Name = checkIfTeamExists.Team_Name,
+									User_Name = UserName,
 									Status = EntityStatus.Active,
 									CreatedAt = DateTime.Now,
 									CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
