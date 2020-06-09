@@ -6,9 +6,10 @@ using Xend.CRM.ModelLayer.Entities;
 
 namespace Xend.CRM.ModelLayer.ViewModels
 {
-    public class CustomerViewModel : BASE_ENTITY
+    public class CustomerViewModel
     {
-        public Guid Company_Id { get; set; }
+		public Guid Id { get; set; }
+		public Guid Company_Id { get; set; }
 		public Guid Createdby_Userid { get; set; }
 		public Guid?  Updatedby_Userid { get; set; }
 		public string First_Name { get; set; }

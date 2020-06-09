@@ -48,12 +48,13 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 				}
 				else
 				{
-					//Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
+					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == user.Company_Id && p.Status == EntityStatus.Active);
 					//if(checkIfCompanyExists != null)
 					//{
 						userToBeCreated = new User()
 						{
 							Company_Id = user.Company_Id,
+							Company_Name = checkIfCompanyExists.Company_Name,
 							User_Password = user.User_Password,
 							First_Name = user.First_Name,
 							Last_Name = user.Last_Name,
@@ -114,6 +115,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 
 							//here i will assign directly what i want to update to the model instead of creating a new instance
 							toBeUpdatedUser.Company_Id = user.Company_Id;
+							toBeUpdatedUser.Company_Name = checkIfCompanyExists.Company_Name;
 							toBeUpdatedUser.User_Password = user.User_Password;
 							toBeUpdatedUser.First_Name = user.First_Name;
 							toBeUpdatedUser.Last_Name = user.Last_Name;

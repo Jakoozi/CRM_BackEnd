@@ -50,6 +50,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 							Customer_Id = ticket.Customer_Id,
 							Createdby_Userid = ticket.Createdby_Userid,
 							//Resolvedby_Entityid = ticket.Resolvedby_Entityid,
+							Company_Name = checkIfCompanyExists.Company_Name,
 							Ticket_Subject = ticket.Ticket_Subject,
 							Ticket_Details = ticket.Ticket_Details,
 							Ticket_Status = Ticket_Status.New,

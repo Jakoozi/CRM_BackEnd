@@ -34,23 +34,27 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 		{
 			try
 			{
-				//unit of work is used to replace _context.
-
-				Customer customerToBeCreated = UnitOfWork.GetRepository<Customer>().Single(p => p.Email == customer.Email || p.Phonenumber == customer.Phonenumber || p.XendCode == customer.XendCode);
-				if (customerToBeCreated != null)
+				Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == customer.Company_Id && p.Status == EntityStatus.Active);
+				if (checkIfCompanyExists == null)
 				{
-					customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
+					customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
 					return customerModel;
 				}
 				else
 				{
-					Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == customer.Company_Id && p.Status == EntityStatus.Active);
-					if (checkIfCompanyExists != null)
+					Customer customerToBeCreated = UnitOfWork.GetRepository<Customer>().Single(p => p.Phonenumber == customer.Phonenumber && p.Company_Id == customer.Company_Id);
+					if (customerToBeCreated != null)
+					{
+						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Customer Already Exists", code = responseCode.ErrorOccured };
+						return customerModel;
+					}
+					else
 					{
 						customerToBeCreated = new Customer
 						{
 							Company_Id = customer.Company_Id,
 							Createdby_Userid = customer.Createdby_Userid,
+							Company_Name = checkIfCompanyExists.Company_Name,
 							First_Name = customer.First_Name,
 							Last_Name = customer.Last_Name,
 							Email = customer.Email,
@@ -68,16 +72,54 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						//Audit Logger
 						_iauditExtension.Auditlogger(customerToBeCreated.Company_Id, customerToBeCreated.Createdby_Userid, "You Created a Customer");
 
-						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
+						customerModel = new CustomerServiceResponseModel() { customer = null, Message = "Entity Created Successfully", code = responseCode.Successful };
 						return customerModel;
 					}
-					else
-					{
-						customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
-						return customerModel;
-					}
-
 				}
+				//unit of work is used to replace _context.
+
+				//Customer customerToBeCreated = UnitOfWork.GetRepository<Customer>().Single(p => p.Email == customer.Email || p.Phonenumber == customer.Phonenumber || p.XendCode == customer.XendCode);
+				//if (customerToBeCreated != null)
+				//{
+				//	customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Already Exists", code = responseCode.ErrorOccured };
+				//	return customerModel;
+				//}
+				//else
+				//{
+				//	Company checkIfCompanyExists = UnitOfWork.GetRepository<Company>().Single(p => p.Id == customer.Company_Id && p.Status == EntityStatus.Active);
+				//	if (checkIfCompanyExists != null)
+				//	{
+				//		customerToBeCreated = new Customer
+				//		{
+				//			Company_Id = customer.Company_Id,
+				//			Createdby_Userid = customer.Createdby_Userid,
+				//			First_Name = customer.First_Name,
+				//			Last_Name = customer.Last_Name,
+				//			Email = customer.Email,
+				//			Phonenumber = customer.Phonenumber,
+				//			XendCode = customer.XendCode,
+				//			Status = EntityStatus.Active,
+				//			CreatedAt = DateTime.Now,
+				//			CreatedAtTimeStamp = DateTime.Now.ToTimeStamp(),
+				//			UpdatedAt = DateTime.Now,
+				//			UpdatedAtTimeStamp = DateTime.Now.ToTimeStamp()
+				//		};
+				//		UnitOfWork.GetRepository<Customer>().Add(customerToBeCreated);
+				//		UnitOfWork.SaveChanges();
+
+				//		//Audit Logger
+				//		_iauditExtension.Auditlogger(customerToBeCreated.Company_Id, customerToBeCreated.Createdby_Userid, "You Created a Customer");
+
+				//		customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Entity Created Successfully", code = responseCode.Successful };
+				//		return customerModel;
+				//	}
+				//	else
+				//	{
+				//		customerModel = new CustomerServiceResponseModel() { customer = customerToBeCreated, Message = "Company Do Not Exist", code = responseCode.ErrorOccured };
+				//		return customerModel;
+				//	}
+
+				//}
 			}
 			catch (Exception ex)
 			{
@@ -107,7 +149,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						{
 
 							//here i will assign directly what i want to update to the model instead of creating a new instance
-							//toBeUpdatedCustomer.Company_Id = user.Company_Id;
+							toBeUpdatedCustomer.Updatedby_Userid = customer.Updatedby_Userid;
 							toBeUpdatedCustomer.First_Name = customer.First_Name;
 							toBeUpdatedCustomer.Last_Name = customer.Last_Name;
 							toBeUpdatedCustomer.Email = customer.Email;

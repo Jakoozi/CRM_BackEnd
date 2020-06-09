@@ -45,6 +45,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			
 							Company_Id = team.Company_Id,
 							Createdby_Userid = team.Createdby_Userid,
+							Company_Name = teamsCompany.Company_Name,
 							Team_Name = team.Team_Name,
 							Team_Description = team.Team_Description,
 							Status = EntityStatus.Active,
@@ -93,6 +94,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			try
 			{
 				//eRROR IS THROWING HERE, I THINK ITS THE EF MIGGRATION ISSUE
+				Company getCompany = UnitOfWork.GetRepository<Company>().Single(p => p.Id == team.Company_Id);
 				Team toBeUpdatedTeam = UnitOfWork.GetRepository<Team>().Single(p => p.Id == team.Id);
 				if (toBeUpdatedTeam == null)
 				{
@@ -105,6 +107,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 					{
 						//here i will assign directly what i want to update to the model instead of creating a new instance
 						toBeUpdatedTeam.Company_Id = team.Company_Id;
+						toBeUpdatedTeam.Company_Name = getCompany.Company_Name;
 						toBeUpdatedTeam.Team_Description = team.Team_Description;
 						toBeUpdatedTeam.Team_Name = team.Team_Name;
 						toBeUpdatedTeam.UpdatedAt = DateTime.Now;

@@ -15,6 +15,7 @@ namespace Xend.CRM.ModelLayer.Entities
 		//public Guid? Resolvedby_Userid { get; set; }
 		//public Guid? Resolvedby_Teamid { get; set; }
 		//the ? after the Guid is for nullable entity value
+		public string Company_Name { get; set; }
 		public string Ticket_Subject { get; set; }
         public string Ticket_Details { get; set; }
 		public string Staff_Response { get; set; }

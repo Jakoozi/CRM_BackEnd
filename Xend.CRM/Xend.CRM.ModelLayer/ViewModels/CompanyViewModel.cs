@@ -8,8 +8,9 @@ using Xend.CRM.ModelLayer.Enums;
 
 namespace Xend.CRM.ModelLayer.ViewModels
 {
-    public class CompanyViewModel : BASE_ENTITY
+    public class CompanyViewModel 
     {
+		public Guid Id { get; set; }
 		public Guid Createdby_Userid { get; set; }
         public string Company_Name { get; set; }
 		public string Company_Description { get; set; }

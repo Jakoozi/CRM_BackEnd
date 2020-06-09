@@ -9,6 +9,8 @@ namespace Xend.CRM.ModelLayer.Entities
     {
         public Guid Company_Id { get; set; }
 		public Guid Createdby_Userid { get; set; }
+		public Guid? Updatedby_Userid { get; set; }
+		public string Company_Name { get; set; }
 		public string First_Name { get; set; }
         public string Last_Name { get; set; }
         public string Phonenumber { get; set; }
@@ -20,6 +22,9 @@ namespace Xend.CRM.ModelLayer.Entities
         public virtual Company Company { get; set; }
 		[ForeignKey("Createdby_Userid")]
 		public virtual User CreatedUser { get; set; }
+		[ForeignKey("Updatedby_Userid")]
+		public virtual User UpdatedUser { get; set; }
+
 
 	}
 }

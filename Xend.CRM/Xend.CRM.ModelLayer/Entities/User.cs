@@ -9,7 +9,8 @@ namespace Xend.CRM.ModelLayer.Entities
     public class User:BASE_ENTITY
     {
         public Guid? Company_Id { get; set; }
-        public string First_Name { get; set; }
+		public string Company_Name { get; set; }
+		public string First_Name { get; set; }
         public string Last_Name { get; set; }
         public string Phonenumber { get; set; }
         public string Email { get; set; }

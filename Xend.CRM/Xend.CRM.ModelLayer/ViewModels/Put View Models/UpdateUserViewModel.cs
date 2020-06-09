@@ -9,6 +9,7 @@ namespace Xend.CRM.ModelLayer.ViewModels.Put_View_Models
 	{
 		public Guid Id { get; set; }
 		public Guid? Company_Id { get; set; }
+		public string Company_Name { get; set; }
 		public string First_Name { get; set; }
 		public string Last_Name { get; set; }
 		public string Phonenumber { get; set; }
@@ -16,8 +17,5 @@ namespace Xend.CRM.ModelLayer.ViewModels.Put_View_Models
 		public string XendCode { get; set; }
 		public User_Role User_Role { get; set; }
 		public string User_Password { get; set; }
-		public DateTime UpdatedAt { get; set; }
-		public double UpdatedAtTimeStamp { get; set; }
-		public EntityStatus Status { get; set; }
 	}
 }

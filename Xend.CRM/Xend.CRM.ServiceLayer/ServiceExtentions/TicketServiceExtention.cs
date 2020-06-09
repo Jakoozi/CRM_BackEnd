@@ -29,6 +29,7 @@ namespace Xend.CRM.ServiceLayer.ServiceExtentions
 		}
 		public async Task<Ticket> TicketResolver(TicketViewModel ticket)
 		{
+			
 			Ticket toBeUpdatedTicket = UnitOfWork.GetRepository<Ticket>().Single(p => p.Id == ticket.Id);
 			//here i will assign directly what i want to update to the model instead of creating a new instance
 			//toBeUpdatedUser.Company_Id = user.Company_Id;
