@@ -54,7 +54,9 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
-		[HttpPut("UpdateTeam")]
+
+		//changed from put to post method because of the server error i was experiencing
+		[HttpPost("UpdateTeam")]
 		public IActionResult UpdateTeam([FromBody] TeamViewModel team)
 		
 {

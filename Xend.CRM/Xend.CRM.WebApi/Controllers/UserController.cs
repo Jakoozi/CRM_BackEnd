@@ -58,8 +58,8 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
-
-		[HttpPut("UpdateUser")]
+		//changed from put to post becuase of 405 status code i was getting
+		[HttpPost("UpdateUser")]
 		public IActionResult UpdateUser([FromBody] UpdateUserViewModel user)
 		{
 			try

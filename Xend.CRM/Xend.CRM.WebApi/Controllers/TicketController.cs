@@ -56,7 +56,8 @@ namespace Xend.CRM.WebApi.Controllers
 			}
 		}
 
-		[HttpPut("ResolveTicket")]
+		//changed from put to post method because of the server error i was experiencing
+		[HttpPost("ResolveTicket")]
 		public async Task<IActionResult> ResolveTicket([FromBody] TicketViewModel ticket)
 		{
 			try
@@ -73,6 +74,38 @@ namespace Xend.CRM.WebApi.Controllers
 					else if (updateMethodServiceResponseModel.code == responseCode.Successful)
 					{
 						return Ok(updateMethodServiceResponseModel.ticket, updateMethodServiceResponseModel.Message, updateMethodServiceResponseModel.code);
+					}
+					else
+					{
+						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
+					}
+				}
+				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
+
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+		//changed from put to post method because of the server error i was experiencing
+		[HttpPost("CloseTicket/{id}")]
+		public IActionResult CloseTicket(Guid id)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+
+					TicketServiceResponseModel closeResponseReciever = _iticket.CloseTicketService(id);
+
+					if (closeResponseReciever.code == responseCode.ErrorOccured)
+					{
+						return BadRequest(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
+					}
+					else if (closeResponseReciever.code == responseCode.Successful)
+					{
+						return Ok(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
 					}
 					else
 					{
@@ -119,38 +152,6 @@ namespace Xend.CRM.WebApi.Controllers
 				return BadRequest(ex);
 			}
 		}
-		[HttpPut("CloseTicket/{id}")]
-		public IActionResult CloseTicket(Guid id)
-		{
-			try
-			{
-				if (ModelState.IsValid)
-				{
-
-					TicketServiceResponseModel closeResponseReciever = _iticket.CloseTicketService(id);
-
-					if (closeResponseReciever.code == responseCode.ErrorOccured)
-					{
-						return BadRequest(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
-					}
-					else if (closeResponseReciever.code == responseCode.Successful)
-					{
-						return Ok(closeResponseReciever.ticket, closeResponseReciever.Message, closeResponseReciever.code);
-					}
-					else
-					{
-						return BadRequest(null, "Error Occured", responseCode.ErrorOccured);
-					}
-				}
-				return BadRequest(null, "Null Entity", responseCode.ErrorOccured);
-
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex);
-			}
-		}
-
 		[HttpGet("GetTicketById/{id}")]
 		public IActionResult GetTicketById(Guid id)
 		{

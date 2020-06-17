@@ -55,10 +55,10 @@ namespace Xend.CRM.WebApi.Controllers
 			{
 				return BadRequest(ex);
 			}
-		
-}
+		}
 
-		[HttpPut("UpdateCustomer")]
+		//changed from put to post method because of the server error i was experiencing
+		[HttpPost("UpdateCustomer")]
 		public IActionResult UpdateCustomer([FromBody] CustomerViewModel customer)
 		{
 			try
