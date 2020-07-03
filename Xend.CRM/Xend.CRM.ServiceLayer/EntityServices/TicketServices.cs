@@ -83,7 +83,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						}
 						else
 						{
-							ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Email not sent, please try again.", code = responseCode.ErrorOccured };
+							ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Email not sent, please check your network and try again.", code = responseCode.ErrorOccured };
 							return ticketModel;
 						}
 
@@ -244,7 +244,8 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 						Guid idOfUserWhoClosed_Ticket = ticket.Resolvedby_Entityid.GetValueOrDefault();
 						_iauditExtension.Auditlogger(ticket.Company_Id, idOfUserWhoClosed_Ticket, "You Closed a Ticket");
 
-						ticketModel = new TicketServiceResponseModel() { ticket = ticket, Message = "Ticket Closed Successfully", code = responseCode.Successful };
+						ticketModel = new TicketServiceResponseModel() { ticket = null, Message = "Ticket Closed Successfully", code = responseCode.Successful };
+				
 						return ticketModel;
 					}
 					else
@@ -304,6 +305,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			try
 			{
 				//i am meant to await that response and asign it to an ienumerable
+				//IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.Active && t.Ticket_Status != Ticket_Status.Closed);
 				IEnumerable<Ticket> tickets = await UnitOfWork.GetRepository<Ticket>().GetListAsync(t => t.Status == EntityStatus.Active && t.Ticket_Status != Ticket_Status.Closed);
 				return tickets;
 			}

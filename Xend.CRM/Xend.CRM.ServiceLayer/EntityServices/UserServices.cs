@@ -40,7 +40,7 @@ namespace Xend.CRM.ServiceLayer.EntityServices
 			{
 				//unit of work is used to replace _context.
 
-				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email || p.Phonenumber == user.Phonenumber || p.XendCode == user.XendCode);
+				User userToBeCreated = UnitOfWork.GetRepository<User>().Single(p => p.Email == user.Email || p.Phonenumber == user.Phonenumber);
 				if(userToBeCreated != null)
 				{
 					userModel = new UserServiceResponseModel() {user = null, Message = "Entity Already Exists", code = responseCode.ErrorOccured };

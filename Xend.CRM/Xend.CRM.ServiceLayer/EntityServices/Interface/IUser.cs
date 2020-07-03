@@ -23,8 +23,5 @@ namespace Xend.CRM.ServiceLayer.EntityServices.Interface
 
 
 		//UserServiceResponseModel AgentLogin(UserViewModel user);
-
-
-
 	}
 }

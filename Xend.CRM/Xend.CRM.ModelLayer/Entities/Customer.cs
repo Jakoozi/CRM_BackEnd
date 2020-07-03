@@ -15,6 +15,7 @@ namespace Xend.CRM.ModelLayer.Entities
         public string Last_Name { get; set; }
         public string Phonenumber { get; set; }
         public string Email { get; set; }
+		//i need to remove this
         public string XendCode { get; set; }
 
         //This creates a relationship between the foriegn key tables and the AuditRail Table in my Database. 
